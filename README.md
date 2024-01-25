@@ -1,3 +1,3 @@
 # 🤖💳🤖 Stacks M2M
 
-Machine-payable transactions on Stacks.
+Smart contracts and tests for machine-payable transactions on Stacks.
