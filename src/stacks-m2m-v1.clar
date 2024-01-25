@@ -1,5 +1,5 @@
 
-;; title: sbtc402
+;; title: stacks-m2m-v1
 ;; version: 0.0.1
 ;; summary: HTTP 402 payments powered by Stacks
 
