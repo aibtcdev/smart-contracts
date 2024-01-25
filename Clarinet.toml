@@ -1,0 +1,21 @@
+[project]
+name = 'stacks-m2m-contracts'
+description = 'Machine-payable transactions on Stacks.'
+authors = []
+telemetry = true
+cache_dir = './.cache'
+requirements = []
+
+[contracts.stacks-m2m-v1]
+path = 'src/stacks-m2m-v1.clar'
+clarity_version = 2
+epoch = 2.4
+
+[repl.analysis]
+passes = ['check_checker']
+
+[repl.analysis.check_checker]
+strict = false
+trusted_sender = false
+trusted_caller = false
+callee_filter = false

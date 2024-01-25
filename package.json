@@ -1,0 +1,23 @@
+{
+  "name": "stacks-m2m-contracts",
+  "description": "Machine-payable transactions on Stacks.",
+  "author": "",
+  "version": "0.0.1",
+  "license": "MIT",
+  "type": "module",
+  "private": true,
+  "scripts": {
+    "test": "vitest run",
+    "test:report": "vitest run -- --coverage --costs",
+    "test:watch": "chokidar \"tests/**/*.ts\" \"contracts/**/*.clar\" -c \"npm run test:report\""
+  },
+  "dependencies": {
+    "@hirosystems/clarinet-sdk": "^1.2.0",
+    "@stacks/transactions": "^6.11.2",
+    "chokidar-cli": "^3.0.0",
+    "typescript": "^5.3.3",
+    "vite": "^5.0.12",
+    "vitest": "^1.2.1",
+    "vitest-environment-clarinet": "^1.1.0"
+  }
+}
