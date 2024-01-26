@@ -166,6 +166,24 @@
   (get-invoice (unwrap! (get-invoice-index hash) none))
 )
 
+;; returns invoice index by user index and resource index if known
+(define-read-only (get-recent-payment (resourceIndex uint) (userIndex uint))
+  (map-get? RecentPayments {
+    userIndex: userIndex,
+    resourceIndex: resourceIndex,
+  })
+)
+
+;; returns invoice data by user index and resource index if known
+(define-read-only (get-recent-payment-data (resourceIndex uint) (userIndex uint))
+  (get-invoice (unwrap! (get-recent-payment resourceIndex userIndex) none))
+)
+
+;; returns invoice data by user address and resource name if known
+(define-read-only (get-recent-payment-data-by-address (name (string-utf8 50)) (user principal))
+  (get-recent-payment-data (unwrap! (get-resource-index name) none) (unwrap! (get-user-index user) none))
+)
+
 ;; returns payment address
 (define-read-only (get-payment-address)
   (some (var-get paymentAddress))
