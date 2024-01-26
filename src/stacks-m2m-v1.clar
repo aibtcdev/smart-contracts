@@ -8,8 +8,10 @@
 
 ;; initially scoped to service provider deploying a contract
 (define-constant DEPLOYER contract-caller)
+(define-constant SELF (as-contract tx-sender))
 
 ;; errors
+;; TODO: clearer errors, e.g. ERR_INVOICE_ALREADY_PAID
 (define-constant ERR_UNAUTHORIZED (err u1000))
 (define-constant ERR_INVALID_PARAMS (err u1001))
 (define-constant ERR_NAME_ALREADY_USED (err u1002))
@@ -79,13 +81,23 @@
   uint      ;; invoice index
 )
 
-;; tracks invoices paid by user's requesting access to a resource
+;; tracks last payment from user for a resource
+(define-map RecentPayments
+  {
+    userIndex: uint,
+    resourceIndex: uint,
+  }
+  uint ;; invoice index
+)
+
+;; tracks invoices paid by users requesting access to a resource
 (define-map InvoiceData
   uint ;; invoice index
   {
     amount: uint,
     createdAt: uint,
     hash: (buff 32),
+    ;; TODO: change all instances to xIndex
     userCount: uint,
     resourceName: (string-utf8 50),
     resourceCount: uint,
@@ -262,6 +274,7 @@
   (delete-resource (unwrap! (get-resource-index name) ERR_INVALID_PARAMS))
 )
 
+;; TODO: pay-for-resource instead?
 (define-public (pay-invoice (resourceIndex uint) (memo (optional (buff 34))))
   (let
     (
@@ -270,6 +283,7 @@
       (resourceData (unwrap! (get-resource resourceIndex) ERR_RESOURCE_NOT_FOUND))
       (userIndex (unwrap! (get-or-create-user contract-caller) ERR_USER_NOT_FOUND))
       (userData (unwrap! (get-user-data userIndex) ERR_USER_NOT_FOUND))
+      ;; TODO: lastStacksBlock or lastAnchoredBlock ?
       (invoiceHash (unwrap! (get-invoice-hash contract-caller resourceIndex lastKnownBlock) ERR_INVOICE_HASH_NOT_FOUND))
     )
     ;; update InvoiceIndexes map, check invoice hash is unique
