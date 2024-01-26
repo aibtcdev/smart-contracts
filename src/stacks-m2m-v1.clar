@@ -299,6 +299,14 @@
         resourceIndex: resourceIndex,
       }
     ) ERR_SAVING_INVOICE)
+    ;; update RecentPayments map
+    (map-set RecentPayments
+      {
+        userIndex: userIndex,
+        resourceIndex: resourceIndex,
+      }
+      newCount
+    )
     ;; update UserData map
     (map-set UserData
       userIndex
