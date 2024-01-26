@@ -175,6 +175,7 @@
 ;; - the bitcoin block and stacks block values (time)
 ;; - the user address requesting the invoice (who)
 ;; - the resource the user is requesting (what)
+;; - the contract name (where)
 (define-read-only (get-invoice-hash (user principal) (resourceIndex uint) (blockHeight uint))
   (let
     (
@@ -186,11 +187,12 @@
       ;; 20 byte pubkey from address
       (userDestruct (unwrap! (principal-destruct? user) none))
       (userPubkey (get hash-bytes userDestruct))
-      ;; 32 byte resource hash, combo of resource index + resource name
+      ;; 32 byte resource hash, combo of resource name + contract name
       (resourceData (unwrap! (get-resource resourceIndex) none))
-      (resourceName (get name resourceData))
-      (resourceInfo (concat (int-to-utf8 resourceIndex) resourceName))
-      (resourceHash (sha256 (unwrap! (to-consensus-buff? resourceInfo) none)))
+      (resourceName (unwrap! (to-consensus-buff? (get name resourceData)) none))
+      (contractName (unwrap! (to-consensus-buff? SELF) none))
+      (resourceInfo (concat resourceName contractName))
+      (resourceHash (sha256 resourceInfo))
       ;; concatenate user pubkey + resource hash
       (combinedUserHash (concat userPubkey resourceHash))
       ;; concatenate both combined hashes for a single buff
