@@ -21,8 +21,8 @@ const createResource = (name: string, desc: string, price: number) => {
 const defaultPrice = 1_000_000; // 1 STX
 
 const testResource = [
-  Cl.stringUtf8("Test Resource 1"),
-  Cl.stringUtf8("Used for initial testing."),
+  Cl.stringUtf8("Bitcoin Face"),
+  Cl.stringUtf8("Generate a unique Bitcoin face."),
   Cl.uint(defaultPrice),
 ];
 
@@ -33,8 +33,11 @@ const testResource = [
 // const expectedBlock0Resource0 = Buffer.from("053637c68fd20a0bdeef9712f0eb6c2b5c041a7f0ee6a6aed601267c25a39cb6", "hex")
 // incremented resource count (and others) to start at 1
 // (some 0x38bc32acb79a15b7a0b04f4268eba0c5be61d17e0629aac508da25d8884b017e)
+// changed hashing algorithm, now composed of: resource name, contract name, stacks block hash, bitcoin block hash, user pubkey
+// (some 0x520b34a624e73b0533db4475f260febb048e7eb150f8773779b9fd9dab85d652)
+// (some 0xffc41d187c6b7bdd89fec3b4cdf967f7ab81d1efb3358cee6df8f08c9d1c76e9)
 const expectedBlock0Resource1 = Buffer.from(
-  "38bc32acb79a15b7a0b04f4268eba0c5be61d17e0629aac508da25d8884b017e",
+  "ffc41d187c6b7bdd89fec3b4cdf967f7ab81d1efb3358cee6df8f08c9d1c76e9",
   "hex"
 );
 
