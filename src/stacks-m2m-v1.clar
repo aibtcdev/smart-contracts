@@ -294,17 +294,16 @@
   (delete-resource (unwrap! (get-resource-index name) ERR_INVALID_PARAMS))
 )
 
-;; TODO: pay-for-resource instead?
+;; allows a user to pay an invoice for a resource
 (define-public (pay-invoice (resourceIndex uint) (memo (optional (buff 34))))
   (let
     (
       (newCount (+ (get-total-invoices) u1))
-      (lastKnownBlock (- block-height u1))
+      (lastAnchoredBlock (- block-height u1))
       (resourceData (unwrap! (get-resource resourceIndex) ERR_RESOURCE_NOT_FOUND))
       (userIndex (unwrap! (get-or-create-user contract-caller) ERR_USER_NOT_FOUND))
       (userData (unwrap! (get-user-data userIndex) ERR_USER_NOT_FOUND))
-      ;; TODO: lastStacksBlock or lastAnchoredBlock ?
-      (invoiceHash (unwrap! (get-invoice-hash contract-caller resourceIndex lastKnownBlock) ERR_INVOICE_HASH_NOT_FOUND))
+      (invoiceHash (unwrap! (get-invoice-hash contract-caller resourceIndex lastAnchoredBlock) ERR_INVOICE_HASH_NOT_FOUND))
     )
     ;; update InvoiceIndexes map, check invoice hash is unique
     (asserts! (map-insert InvoiceIndexes invoiceHash newCount) ERR_INVOICE_ALREADY_PAID)
