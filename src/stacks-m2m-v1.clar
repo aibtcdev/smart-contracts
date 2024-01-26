@@ -97,10 +97,9 @@
     amount: uint,
     createdAt: uint,
     hash: (buff 32),
-    ;; TODO: change all instances to xIndex
-    userCount: uint,
+    userIndex: uint,
     resourceName: (string-utf8 50),
-    resourceCount: uint,
+    resourceIndex: uint,
   }
 )
 
@@ -295,9 +294,9 @@
         amount: (get price resourceData),
         createdAt: block-height,
         hash: invoiceHash,
-        userCount: userIndex,
+        userIndex: userIndex,
         resourceName: (get name resourceData),
-        resourceCount: resourceIndex,
+        resourceIndex: resourceIndex,
       }
     ) ERR_SAVING_INVOICE)
     ;; update UserData map
