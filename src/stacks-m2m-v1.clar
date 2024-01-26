@@ -11,18 +11,19 @@
 (define-constant SELF (as-contract tx-sender))
 
 ;; errors
-;; TODO: clearer errors, e.g. ERR_INVOICE_ALREADY_PAID
 (define-constant ERR_UNAUTHORIZED (err u1000))
 (define-constant ERR_INVALID_PARAMS (err u1001))
 (define-constant ERR_NAME_ALREADY_USED (err u1002))
 (define-constant ERR_SAVING_RESOURCE_DATA (err u1003))
 (define-constant ERR_DELETING_RESOURCE_DATA (err u1004))
 (define-constant ERR_RESOURCE_NOT_FOUND (err u1005))
-(define-constant ERR_SAVING_USER_DATA (err u1006))
-(define-constant ERR_USER_NOT_FOUND (err u1007))
-(define-constant ERR_SAVING_INVOICE (err u1008))
-(define-constant ERR_INVOICE_HASH_NOT_FOUND (err u1009))
-(define-constant ERR_SETTING_MEMO_ON_TRANSFER (err u1010))
+(define-constant ERR_USER_ALREADY_EXISTS (err u1006))
+(define-constant ERR_SAVING_USER_DATA (err u1007))
+(define-constant ERR_USER_NOT_FOUND (err u1008))
+(define-constant ERR_INVOICE_ALREADY_PAID (err u1009))
+(define-constant ERR_SAVING_INVOICE_DATA (err u1010))
+(define-constant ERR_INVOICE_HASH_NOT_FOUND (err u1011))
+(define-constant ERR_SETTING_MEMO_ON_TRANSFER (err u1012))
 
 ;; data vars
 ;;
@@ -306,7 +307,7 @@
       (invoiceHash (unwrap! (get-invoice-hash contract-caller resourceIndex lastKnownBlock) ERR_INVOICE_HASH_NOT_FOUND))
     )
     ;; update InvoiceIndexes map, check invoice hash is unique
-    (asserts! (map-insert InvoiceIndexes invoiceHash newCount) ERR_SAVING_INVOICE)
+    (asserts! (map-insert InvoiceIndexes invoiceHash newCount) ERR_INVOICE_ALREADY_PAID)
     ;; update InvoiceData map
     (asserts! (map-insert InvoiceData
       newCount
@@ -318,7 +319,7 @@
         resourceName: (get name resourceData),
         resourceIndex: resourceIndex,
       }
-    ) ERR_SAVING_INVOICE)
+    ) ERR_SAVING_INVOICE_DATA)
     ;; update RecentPayments map
     (map-set RecentPayments
       {
