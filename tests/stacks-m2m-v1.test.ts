@@ -353,7 +353,10 @@ describe("Setting a Payment Address", () => {
     const response = simnet.callPublicFn(
       "stacks-m2m-v1",
       "set-payment-address",
-      [Cl.principal(currentPaymentAddress.value), Cl.principal(address1)],
+      [
+        Cl.standardPrincipal(currentPaymentAddress.value),
+        Cl.standardPrincipal(address1),
+      ],
       address1
     );
     // ASSERT
@@ -371,7 +374,7 @@ describe("Setting a Payment Address", () => {
     const response = simnet.callPublicFn(
       "stacks-m2m-v1",
       "set-payment-address",
-      [Cl.principal(address1), Cl.principal(address1)],
+      [Cl.standardPrincipal(address1), Cl.standardPrincipal(address1)],
       deployer
     );
     // ASSERT
@@ -401,7 +404,10 @@ describe("Setting a Payment Address", () => {
     const response = simnet.callPublicFn(
       "stacks-m2m-v1",
       "set-payment-address",
-      [Cl.principal(currentPaymentAddress.value), Cl.principal(address1)],
+      [
+        Cl.standardPrincipal(currentPaymentAddress.value),
+        Cl.standardPrincipal(address1),
+      ],
       deployer
     );
     // ASSERT
@@ -432,7 +438,10 @@ describe("Setting a Payment Address", () => {
     const response = simnet.callPublicFn(
       "stacks-m2m-v1",
       "set-payment-address",
-      [Cl.principal(currentPaymentAddress.value), Cl.principal(address1)],
+      [
+        Cl.standardPrincipal(currentPaymentAddress.value),
+        Cl.standardPrincipal(address1),
+      ],
       deployer
     );
     // progress the chain
@@ -452,7 +461,7 @@ describe("Setting a Payment Address", () => {
     const secondResponse = simnet.callPublicFn(
       "stacks-m2m-v1",
       "set-payment-address",
-      [Cl.principal(address1), Cl.principal(address2)],
+      [Cl.standardPrincipal(address1), Cl.standardPrincipal(address2)],
       address1
     );
     // ASSERT
@@ -534,6 +543,110 @@ describe("Generating an invoice hash", () => {
     );
     // ASSERT
     expect(response.result).toBeSome(Cl.buffer(expectedBlock0Resource1));
+  });
+
+  it("get-invoice-hash() succeeds and generates unique values for different users at different block heights", async () => {
+    // ARRANGE
+    const simnet = await initSimnet();
+    const accounts = simnet.getAccounts();
+    const deployer = accounts.get("deployer")!;
+    const address1 = accounts.get("wallet_1")!;
+    const address2 = accounts.get("wallet_2")!;
+    const wallets = [deployer, address1, address2];
+
+    // ACT
+    // add a resource
+    simnet.callPublicFn(
+      "stacks-m2m-v1",
+      "add-resource",
+      testResource,
+      deployer
+    );
+    // progress the chain
+    simnet.mineEmptyBlocks(5000);
+    // create an array of invoice hashes for 500 blocks
+    const invoiceHashes = [];
+    for (const wallet of wallets) {
+      for (let i = 0; i < 500; i++) {
+        const response = simnet.callReadOnlyFn(
+          "stacks-m2m-v1",
+          "get-invoice-hash",
+          [
+            Cl.standardPrincipal(wallet), // user
+            Cl.uint(1), // resource index
+            Cl.uint(i), // block height
+          ],
+          wallet
+        );
+        invoiceHashes.push(response.result);
+      }
+    }
+
+    // ASSERT
+    // check that each invoice hash is unique
+    const uniqueInvoiceHashes = new Set(invoiceHashes);
+    expect(uniqueInvoiceHashes.size).toEqual(invoiceHashes.length);
+  });
+
+  it("get-invoice-hash() succeeds and generates consistent values for different users at different block heights", async () => {
+    // ARRANGE
+    const simnet = await initSimnet();
+    const accounts = simnet.getAccounts();
+    const deployer = accounts.get("deployer")!;
+    const address1 = accounts.get("wallet_1")!;
+    const address2 = accounts.get("wallet_2")!;
+    const wallets = [deployer, address1, address2];
+
+    // ACT
+    // add a resource
+    simnet.callPublicFn(
+      "stacks-m2m-v1",
+      "add-resource",
+      testResource,
+      deployer
+    );
+    // progress the chain
+    simnet.mineEmptyBlocks(5000);
+    // create an array of invoice hashes for 500 blocks
+    const firstInvoiceHashes = [];
+    for (const wallet of wallets) {
+      for (let i = 0; i < 500; i++) {
+        const response = simnet.callReadOnlyFn(
+          "stacks-m2m-v1",
+          "get-invoice-hash",
+          [
+            Cl.standardPrincipal(wallet), // user
+            Cl.uint(1), // resource index
+            Cl.uint(i), // block height
+          ],
+          wallet
+        );
+        firstInvoiceHashes.push(response.result);
+      }
+    }
+    // progress the chain
+    simnet.mineEmptyBlocks(5000);
+    // create an array of invoice hashes for 500 blocks
+    const secondInvoiceHashes = [];
+    for (const wallet of wallets) {
+      for (let i = 0; i < 500; i++) {
+        const response = simnet.callReadOnlyFn(
+          "stacks-m2m-v1",
+          "get-invoice-hash",
+          [
+            Cl.standardPrincipal(wallet), // user
+            Cl.uint(1), // resource index
+            Cl.uint(i), // block height
+          ],
+          wallet
+        );
+        secondInvoiceHashes.push(response.result);
+      }
+    }
+
+    // ASSERT
+    // check that the arrays are equal
+    expect(firstInvoiceHashes).toEqual(secondInvoiceHashes);
   });
 });
 
@@ -705,5 +818,92 @@ describe("Paying an invoice", () => {
     for (let i = 0; i < blockResponses.length; i++) {
       expect(blockResponses[i].result).toBeOk(Cl.uint(expectedCount + i));
     }
+  });
+
+  it("pay-invoice() succeeds and updates resource and user data", async () => {
+    // ARRANGE
+    const simnet = await initSimnet();
+    const accounts = simnet.getAccounts();
+    const address1 = accounts.get("wallet_1")!;
+    const address2 = accounts.get("wallet_2")!;
+    const deployer = accounts.get("deployer")!;
+    const memo = Cl.none();
+    // ACT
+    // add a resource
+    simnet.callPublicFn(
+      "stacks-m2m-v1",
+      "add-resource",
+      testResource,
+      deployer
+    );
+    // pay invoice for resource
+    simnet.callPublicFn(
+      "stacks-m2m-v1",
+      "pay-invoice",
+      [
+        Cl.uint(1), // resource index
+        memo, // memo
+      ],
+      address1
+    );
+    // progress the chain
+    simnet.mineEmptyBlocks(5000);
+    // pay invoice again for resource
+    simnet.callPublicFn(
+      "stacks-m2m-v1",
+      "pay-invoice",
+      [
+        Cl.uint(1), // resource index
+        memo, // memo
+      ],
+      address2
+    );
+    // progress the chain
+    simnet.mineEmptyBlocks(5000);
+    // get resource
+    const resourceResponse = simnet.callReadOnlyFn(
+      "stacks-m2m-v1",
+      "get-resource",
+      [Cl.uint(1)],
+      deployer
+    );
+    // get user
+    const userResponseOne = simnet.callReadOnlyFn(
+      "stacks-m2m-v1",
+      "get-user-data-by-address",
+      [Cl.standardPrincipal(address1)],
+      deployer
+    );
+    const userResponseTwo = simnet.callReadOnlyFn(
+      "stacks-m2m-v1",
+      "get-user-data-by-address",
+      [Cl.standardPrincipal(address2)],
+      deployer
+    );
+    // ASSERT
+    expect(resourceResponse.result).toBeSome(
+      Cl.tuple({
+        createdAt: Cl.uint(2),
+        description: Cl.stringUtf8("Generate a unique Bitcoin face."),
+        name: Cl.stringUtf8("Bitcoin Face"),
+        price: Cl.uint(defaultPrice),
+        totalSpent: Cl.uint(defaultPrice * 2),
+        totalUsed: Cl.uint(2),
+      })
+    );
+    expect(userResponseOne.result).toBeSome(
+      Cl.tuple({
+        address: Cl.standardPrincipal(address1),
+        totalSpent: Cl.uint(defaultPrice),
+        totalUsed: Cl.uint(1),
+      })
+    );
+    expect(userResponseTwo.result).toBeSome(
+      Cl.tuple({
+        address: Cl.standardPrincipal(address2),
+        totalSpent: Cl.uint(defaultPrice),
+        totalUsed: Cl.uint(1),
+      })
+    );
   });
 });
