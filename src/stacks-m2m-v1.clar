@@ -342,7 +342,7 @@
       resourceIndex
       (merge resourceData {
         totalSpent: (+ (get totalSpent resourceData) (get price resourceData)),
-        totalUsed: (+ (get totalUsed userData) u1)
+        totalUsed: (+ (get totalUsed resourceData) u1)
       })
     )
     ;; increment counter
