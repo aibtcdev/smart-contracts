@@ -1,5 +1,5 @@
 import { initSimnet } from "@hirosystems/clarinet-sdk";
-import { Cl } from "@stacks/transactions";
+import { Cl, cvToValue } from "@stacks/transactions";
 import { describe, expect, it } from "vitest";
 
 enum ErrCode {
@@ -61,6 +61,7 @@ describe("Adding a resource", () => {
     // ASSERT
     expect(response.result).toBeErr(Cl.uint(ErrCode.ERR_UNAUTHORIZED));
   });
+
   it("add-resource() fails if name is blank", async () => {
     // ARRANGE
     const simnet = await initSimnet();
@@ -163,6 +164,301 @@ describe("Adding a resource", () => {
     expect(oldCount.result).toBeUint(expectedCount - 1);
     expect(response.result).toBeOk(Cl.uint(expectedCount));
     expect(newCount.result).toBeUint(expectedCount);
+  });
+});
+
+describe("Deleting a Resource", () => {
+  it("delete-resource() fails if not called by deployer", async () => {
+    // ARRANGE
+    const simnet = await initSimnet();
+    const accounts = simnet.getAccounts();
+    const deployer = accounts.get("deployer")!;
+    const address1 = accounts.get("wallet_1")!;
+    // ACT
+    // create resource
+    simnet.callPublicFn(
+      "stacks-m2m-v1",
+      "add-resource",
+      testResource,
+      deployer
+    );
+    // progress the chain
+    simnet.mineEmptyBlocks(5000);
+    // delete resource
+    const response = simnet.callPublicFn(
+      "stacks-m2m-v1",
+      "delete-resource",
+      [Cl.uint(1)],
+      address1
+    );
+    // ASSERT
+    expect(response.result).toBeErr(Cl.uint(ErrCode.ERR_UNAUTHORIZED));
+  });
+
+  it("delete-resource() fails if provided index is greater than current resource count", async () => {
+    // ARRANGE
+    const simnet = await initSimnet();
+    const accounts = simnet.getAccounts();
+    const deployer = accounts.get("deployer")!;
+    // ACT
+    const response = simnet.callPublicFn(
+      "stacks-m2m-v1",
+      "delete-resource",
+      [Cl.uint(1)],
+      deployer
+    );
+    // ASSERT
+    expect(response.result).toBeErr(Cl.uint(ErrCode.ERR_INVALID_PARAMS));
+  });
+
+  it("delete-resource() fails if executed twice on the same resource", async () => {
+    // ARRANGE
+    const simnet = await initSimnet();
+    const accounts = simnet.getAccounts();
+    const deployer = accounts.get("deployer")!;
+    // ACT
+    // create resource
+    simnet.callPublicFn(
+      "stacks-m2m-v1",
+      "add-resource",
+      testResource,
+      deployer
+    );
+    // progress the chain
+    simnet.mineEmptyBlocks(5000);
+    // delete resource
+    simnet.callPublicFn(
+      "stacks-m2m-v1",
+      "delete-resource",
+      [Cl.uint(1)],
+      deployer
+    );
+    // progress the chain
+    simnet.mineEmptyBlocks(5000);
+    // delete resource again
+    const response = simnet.callPublicFn(
+      "stacks-m2m-v1",
+      "delete-resource",
+      [Cl.uint(1)],
+      deployer
+    );
+    // ASSERT
+    expect(response.result).toBeErr(
+      Cl.uint(ErrCode.ERR_DELETING_RESOURCE_DATA)
+    );
+  });
+
+  it("delete-resource-by-name() fails if not called by deployer", async () => {
+    // ARRANGE
+    const simnet = await initSimnet();
+    const accounts = simnet.getAccounts();
+    const deployer = accounts.get("deployer")!;
+    const address1 = accounts.get("wallet_1")!;
+    // ACT
+    // create resource
+    simnet.callPublicFn(
+      "stacks-m2m-v1",
+      "add-resource",
+      testResource,
+      deployer
+    );
+    // progress the chain
+    simnet.mineEmptyBlocks(5000);
+    // delete resource
+    const response = simnet.callPublicFn(
+      "stacks-m2m-v1",
+      "delete-resource-by-name",
+      [Cl.stringUtf8("Bitcoin Face")],
+      address1
+    );
+    // ASSERT
+    expect(response.result).toBeErr(Cl.uint(ErrCode.ERR_UNAUTHORIZED));
+  });
+
+  it("delete-resource-by-name() fails if provided name is not found", async () => {
+    // ARRANGE
+    const simnet = await initSimnet();
+    const accounts = simnet.getAccounts();
+    const deployer = accounts.get("deployer")!;
+    // ACT
+    const response = simnet.callPublicFn(
+      "stacks-m2m-v1",
+      "delete-resource-by-name",
+      [Cl.stringUtf8("Nothingburger")],
+      deployer
+    );
+    // ASSERT
+    expect(response.result).toBeErr(Cl.uint(ErrCode.ERR_INVALID_PARAMS));
+  });
+
+  it("pay-invoice() fails for a deleted resource", async () => {
+    // ARRANGE
+    const simnet = await initSimnet();
+    const accounts = simnet.getAccounts();
+    const address1 = accounts.get("wallet_1")!;
+    const deployer = accounts.get("deployer")!;
+    // ACT
+    // create resource
+    simnet.callPublicFn(
+      "stacks-m2m-v1",
+      "add-resource",
+      testResource,
+      deployer
+    );
+    // progress the chain
+    simnet.mineEmptyBlocks(5000);
+    // delete resource
+    simnet.callPublicFn(
+      "stacks-m2m-v1",
+      "delete-resource",
+      [Cl.uint(1)],
+      deployer
+    );
+    // progress the chain
+    simnet.mineEmptyBlocks(5000);
+    // pay invoice
+    const response = simnet.callPublicFn(
+      "stacks-m2m-v1",
+      "pay-invoice",
+      [
+        Cl.uint(1), // resource index
+        Cl.none(), // memo
+      ],
+      address1
+    );
+    // ASSERT
+    expect(response.result).toBeErr(Cl.uint(ErrCode.ERR_RESOURCE_NOT_FOUND));
+  });
+});
+
+describe("Setting a Payment Address", () => {
+  it("set-payment-address() fails if not called by deployer", async () => {
+    // ARRANGE
+    const simnet = await initSimnet();
+    const accounts = simnet.getAccounts();
+    const address1 = accounts.get("wallet_1")!;
+    // ACT
+    // get current payment address
+    const currentPaymentAddressResponse = simnet.callReadOnlyFn(
+      "stacks-m2m-v1",
+      "get-payment-address",
+      [],
+      address1
+    );
+    // parse into an object we can read
+    const currentPaymentAddress = cvToValue(
+      currentPaymentAddressResponse.result
+    );
+    // set payment address
+    const response = simnet.callPublicFn(
+      "stacks-m2m-v1",
+      "set-payment-address",
+      [Cl.principal(currentPaymentAddress.value), Cl.principal(address1)],
+      address1
+    );
+    // ASSERT
+    expect(response.result).toBeErr(Cl.uint(ErrCode.ERR_UNAUTHORIZED));
+  });
+
+  it("set-payment-address() fails if old address param is incorrect", async () => {
+    // ARRANGE
+    const simnet = await initSimnet();
+    const accounts = simnet.getAccounts();
+    const address1 = accounts.get("wallet_1")!;
+    const deployer = accounts.get("deployer")!;
+    // ACT
+    // set payment address
+    const response = simnet.callPublicFn(
+      "stacks-m2m-v1",
+      "set-payment-address",
+      [Cl.principal(address1), Cl.principal(address1)],
+      deployer
+    );
+    // ASSERT
+    expect(response.result).toBeErr(Cl.uint(ErrCode.ERR_UNAUTHORIZED));
+  });
+
+  it("set-payment-address() succeeds if called by the deployer", async () => {
+    // ARRANGE
+    const simnet = await initSimnet();
+    const accounts = simnet.getAccounts();
+    const deployer = accounts.get("deployer")!;
+    const address1 = accounts.get("wallet_1")!;
+
+    // ACT
+    // get current payment address
+    const currentPaymentAddressResponse = simnet.callReadOnlyFn(
+      "stacks-m2m-v1",
+      "get-payment-address",
+      [],
+      address1
+    );
+    // parse into an object we can read
+    const currentPaymentAddress = cvToValue(
+      currentPaymentAddressResponse.result
+    );
+    // set payment address
+    const response = simnet.callPublicFn(
+      "stacks-m2m-v1",
+      "set-payment-address",
+      [Cl.principal(currentPaymentAddress.value), Cl.principal(address1)],
+      deployer
+    );
+    // ASSERT
+    expect(response.result).toBeOk(Cl.bool(true));
+  });
+
+  it("set-payment-address() succeeds if called by current payment address", async () => {
+    // ARRANGE
+    const simnet = await initSimnet();
+    const accounts = simnet.getAccounts();
+    const deployer = accounts.get("deployer")!;
+    const address1 = accounts.get("wallet_1")!;
+    const address2 = accounts.get("wallet_2")!;
+
+    // ACT
+    // get current payment address
+    const currentPaymentAddressResponse = simnet.callReadOnlyFn(
+      "stacks-m2m-v1",
+      "get-payment-address",
+      [],
+      address1
+    );
+    // parse into an object we can read
+    const currentPaymentAddress = cvToValue(
+      currentPaymentAddressResponse.result
+    );
+    // set payment address
+    const response = simnet.callPublicFn(
+      "stacks-m2m-v1",
+      "set-payment-address",
+      [Cl.principal(currentPaymentAddress.value), Cl.principal(address1)],
+      deployer
+    );
+    // progress the chain
+    simnet.mineEmptyBlocks(5000);
+    // get current payment address again
+    const updatedPaymentAddressResponse = simnet.callReadOnlyFn(
+      "stacks-m2m-v1",
+      "get-payment-address",
+      [],
+      address1
+    );
+    // parse into an object we can read
+    const updatedPaymentAddress = cvToValue(
+      updatedPaymentAddressResponse.result
+    );
+    // set payment address again
+    const secondResponse = simnet.callPublicFn(
+      "stacks-m2m-v1",
+      "set-payment-address",
+      [Cl.principal(address1), Cl.principal(address2)],
+      address1
+    );
+    // ASSERT
+    expect(updatedPaymentAddress.value).toEqual(address1);
+    expect(response.result).toBeOk(Cl.bool(true));
+    expect(secondResponse.result).toBeOk(Cl.bool(true));
   });
 });
 

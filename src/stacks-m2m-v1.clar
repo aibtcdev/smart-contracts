@@ -229,12 +229,14 @@
 ;; only accessible by deployer or current payment address
 (define-public (set-payment-address (oldAddress principal) (newAddress principal))
   (begin
+    ;; check that old address matches current address
+    (asserts! (is-eq oldAddress (var-get paymentAddress)) ERR_UNAUTHORIZED)
     ;; address cannot be the same
     (asserts! (not (is-eq oldAddress newAddress)) ERR_UNAUTHORIZED)
     ;; check if caller matches deployer or oldAddress
     (asserts! (or
-      (try! (is-deployer))
       (is-eq contract-caller oldAddress)
+      (try! (is-deployer))
     ) ERR_UNAUTHORIZED)
     ;; set new payment address
     (ok (var-set paymentAddress newAddress))
@@ -283,7 +285,7 @@
     ;; check if caller matches deployer
     (try! (is-deployer))
     ;; check provided index is within range
-    (asserts! (and (> index u0) (< index (var-get resourceCount))) ERR_INVALID_PARAMS)
+    (asserts! (and (> index u0) (<= index (var-get resourceCount))) ERR_INVALID_PARAMS)
     ;; return and delete resource data from map
     (ok (asserts! (map-delete ResourceData index) ERR_DELETING_RESOURCE_DATA))
   )
