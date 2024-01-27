@@ -3,6 +3,13 @@
 ;; version: 0.0.1
 ;; summary: HTTP 402 payments powered by Stacks
 
+;; traits
+;;
+
+;; getting errors for add-resource, pay-invoice, and pay-invoice-by-name
+;; maybe next time!
+;; (impl-trait .stacks-m2m-trait-v1.stacks-m2m-trait-v1)
+
 ;; constants
 ;;
 
