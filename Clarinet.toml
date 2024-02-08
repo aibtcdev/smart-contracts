@@ -6,6 +6,11 @@ telemetry = true
 cache_dir = './.cache'
 requirements = []
 
+[contracts.abtc]
+path = 'src/abtc.clar'
+clarity_version = 2
+epoch = 2.4
+
 [contracts.stacks-m2m-trait-v1]
 path = 'src/stacks-m2m-trait-v1.clar'
 clarity_version = 2
@@ -13,6 +18,11 @@ epoch = 2.4
 
 [contracts.stacks-m2m-v1]
 path = 'src/stacks-m2m-v1.clar'
+clarity_version = 2
+epoch = 2.4
+
+[contracts.stacks-m2m-v2]
+path = 'src/stacks-m2m-v2.clar'
 clarity_version = 2
 epoch = 2.4
 
