@@ -77,6 +77,7 @@
 
 ;; tracks resources added by deployer keyed by resource index
 ;; can iterate over full map with resourceCount data-var
+;; TODO: add string for URL / health checks? could it change?
 (define-map ResourceData
   uint ;; resource index
   {
@@ -258,7 +259,7 @@
 
 ;; adds active resource that invoices can be generated for
 ;; only accessible by deployer
-(define-public (add-resource (price uint) (name (string-utf8 50)) (description (string-utf8 255)))
+(define-public (add-resource (name (string-utf8 50)) (description (string-utf8 255)) (price uint))
   (let
     (
       (newCount (+ (get-total-resources) u1))
