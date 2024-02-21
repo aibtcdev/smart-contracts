@@ -1,4 +1,3 @@
-import { initSimnet } from "@hirosystems/clarinet-sdk";
 import { Cl, cvToValue } from "@stacks/transactions";
 import { describe, expect, it } from "vitest";
 
@@ -30,9 +29,8 @@ const testResource = [
 ];
 
 describe("Adding a resource", () => {
-  it("add-resource() fails if not called by deployer", async () => {
+  it("add-resource() fails if not called by deployer", () => {
     // ARRANGE
-    const simnet = await initSimnet();
     const accounts = simnet.getAccounts();
     const address1 = accounts.get("wallet_1")!;
     // ACT
@@ -46,9 +44,8 @@ describe("Adding a resource", () => {
     expect(response.result).toBeErr(Cl.uint(ErrCode.ERR_UNAUTHORIZED));
   });
 
-  it("add-resource() fails if name is blank", async () => {
+  it("add-resource() fails if name is blank", () => {
     // ARRANGE
-    const simnet = await initSimnet();
     const accounts = simnet.getAccounts();
     const deployer = accounts.get("deployer")!;
     // ACT
@@ -62,9 +59,8 @@ describe("Adding a resource", () => {
     expect(response.result).toBeErr(Cl.uint(ErrCode.ERR_INVALID_PARAMS));
   });
 
-  it("add-resource() fails if description is blank", async () => {
+  it("add-resource() fails if description is blank", () => {
     // ARRANGE
-    const simnet = await initSimnet();
     const accounts = simnet.getAccounts();
     const deployer = accounts.get("deployer")!;
     // ACT
@@ -78,9 +74,8 @@ describe("Adding a resource", () => {
     expect(response.result).toBeErr(Cl.uint(ErrCode.ERR_INVALID_PARAMS));
   });
 
-  it("add-resource() fails if price is 0", async () => {
+  it("add-resource() fails if price is 0", () => {
     // ARRANGE
-    const simnet = await initSimnet();
     const accounts = simnet.getAccounts();
     const deployer = accounts.get("deployer")!;
     // ACT
@@ -93,9 +88,8 @@ describe("Adding a resource", () => {
     // ASSERT
     expect(response.result).toBeErr(Cl.uint(ErrCode.ERR_INVALID_PARAMS));
   });
-  it("add-resource() fails if name already used", async () => {
+  it("add-resource() fails if name already used", () => {
     // ARRANGE
-    const simnet = await initSimnet();
     const accounts = simnet.getAccounts();
     const deployer = accounts.get("deployer")!;
     const expectedCount = 1;
@@ -119,9 +113,8 @@ describe("Adding a resource", () => {
     );
   });
 
-  it("add-resource() succeeds and increments resource count", async () => {
+  it("add-resource() succeeds and increments resource count", () => {
     // ARRANGE
-    const simnet = await initSimnet();
     const accounts = simnet.getAccounts();
     const deployer = accounts.get("deployer")!;
     const expectedCount = 1;
@@ -152,9 +145,8 @@ describe("Adding a resource", () => {
 });
 
 describe("Deleting a Resource", () => {
-  it("delete-resource() fails if not called by deployer", async () => {
+  it("delete-resource() fails if not called by deployer", () => {
     // ARRANGE
-    const simnet = await initSimnet();
     const accounts = simnet.getAccounts();
     const deployer = accounts.get("deployer")!;
     const address1 = accounts.get("wallet_1")!;
@@ -179,9 +171,8 @@ describe("Deleting a Resource", () => {
     expect(response.result).toBeErr(Cl.uint(ErrCode.ERR_UNAUTHORIZED));
   });
 
-  it("delete-resource() fails if provided index is greater than current resource count", async () => {
+  it("delete-resource() fails if provided index is greater than current resource count", () => {
     // ARRANGE
-    const simnet = await initSimnet();
     const accounts = simnet.getAccounts();
     const deployer = accounts.get("deployer")!;
     // ACT
@@ -195,9 +186,8 @@ describe("Deleting a Resource", () => {
     expect(response.result).toBeErr(Cl.uint(ErrCode.ERR_INVALID_PARAMS));
   });
 
-  it("delete-resource() fails if executed twice on the same resource", async () => {
+  it("delete-resource() fails if executed twice on the same resource", () => {
     // ARRANGE
-    const simnet = await initSimnet();
     const accounts = simnet.getAccounts();
     const deployer = accounts.get("deployer")!;
     // ACT
@@ -232,9 +222,8 @@ describe("Deleting a Resource", () => {
     );
   });
 
-  it("delete-resource-by-name() fails if not called by deployer", async () => {
+  it("delete-resource-by-name() fails if not called by deployer", () => {
     // ARRANGE
-    const simnet = await initSimnet();
     const accounts = simnet.getAccounts();
     const deployer = accounts.get("deployer")!;
     const address1 = accounts.get("wallet_1")!;
@@ -259,9 +248,8 @@ describe("Deleting a Resource", () => {
     expect(response.result).toBeErr(Cl.uint(ErrCode.ERR_UNAUTHORIZED));
   });
 
-  it("delete-resource-by-name() fails if provided name is not found", async () => {
+  it("delete-resource-by-name() fails if provided name is not found", () => {
     // ARRANGE
-    const simnet = await initSimnet();
     const accounts = simnet.getAccounts();
     const deployer = accounts.get("deployer")!;
     // ACT
@@ -275,9 +263,8 @@ describe("Deleting a Resource", () => {
     expect(response.result).toBeErr(Cl.uint(ErrCode.ERR_INVALID_PARAMS));
   });
 
-  it("pay-invoice() fails for a deleted resource", async () => {
+  it("pay-invoice() fails for a deleted resource", () => {
     // ARRANGE
-    const simnet = await initSimnet();
     const accounts = simnet.getAccounts();
     const address1 = accounts.get("wallet_1")!;
     const deployer = accounts.get("deployer")!;
@@ -316,9 +303,8 @@ describe("Deleting a Resource", () => {
 });
 
 describe("Setting a Payment Address", () => {
-  it("set-payment-address() fails if not called by deployer", async () => {
+  it("set-payment-address() fails if not called by deployer", () => {
     // ARRANGE
-    const simnet = await initSimnet();
     const accounts = simnet.getAccounts();
     const address1 = accounts.get("wallet_1")!;
     // ACT
@@ -347,9 +333,8 @@ describe("Setting a Payment Address", () => {
     expect(response.result).toBeErr(Cl.uint(ErrCode.ERR_UNAUTHORIZED));
   });
 
-  it("set-payment-address() fails if old address param is incorrect", async () => {
+  it("set-payment-address() fails if old address param is incorrect", () => {
     // ARRANGE
-    const simnet = await initSimnet();
     const accounts = simnet.getAccounts();
     const address1 = accounts.get("wallet_1")!;
     const deployer = accounts.get("deployer")!;
@@ -365,9 +350,8 @@ describe("Setting a Payment Address", () => {
     expect(response.result).toBeErr(Cl.uint(ErrCode.ERR_UNAUTHORIZED));
   });
 
-  it("set-payment-address() succeeds if called by the deployer", async () => {
+  it("set-payment-address() succeeds if called by the deployer", () => {
     // ARRANGE
-    const simnet = await initSimnet();
     const accounts = simnet.getAccounts();
     const deployer = accounts.get("deployer")!;
     const address1 = accounts.get("wallet_1")!;
@@ -398,9 +382,8 @@ describe("Setting a Payment Address", () => {
     expect(response.result).toBeOk(Cl.bool(true));
   });
 
-  it("set-payment-address() succeeds if called by current payment address", async () => {
+  it("set-payment-address() succeeds if called by current payment address", () => {
     // ARRANGE
-    const simnet = await initSimnet();
     const accounts = simnet.getAccounts();
     const deployer = accounts.get("deployer")!;
     const address1 = accounts.get("wallet_1")!;
@@ -456,9 +439,8 @@ describe("Setting a Payment Address", () => {
 });
 
 describe("Paying an invoice", () => {
-  it("pay-invoice() fails if resource is not found", async () => {
+  it("pay-invoice() fails if resource is not found", () => {
     // ARRANGE
-    const simnet = await initSimnet();
     const accounts = simnet.getAccounts();
     const address1 = accounts.get("wallet_1")!;
     // ACT
@@ -475,14 +457,13 @@ describe("Paying an invoice", () => {
     expect(response.result).toBeErr(Cl.uint(ErrCode.ERR_RESOURCE_NOT_FOUND));
   });
   // not expecting ERR_USER_NOT_FOUND, not sure if we can force?
-  // it("pay-invoice() fails if user cannot be created or found", async () => {})
+  // it("pay-invoice() fails if user cannot be created or found", () => {})
   // not expecting ERR_INVOICE_HASH_NOT_FOUND, same as above
-  // it("pay-invoice() fails if invoice hash cannot be found", async () => {})
+  // it("pay-invoice() fails if invoice hash cannot be found", () => {})
   // not expecting ERR_SAVING_INVOICE in two spots, same as above
-  // it("pay-invoice() fails if invoice cannot be saved", async () => {})
-  it("pay-invoice() succeeds and returns invoice count without memo", async () => {
+  // it("pay-invoice() fails if invoice cannot be saved", () => {})
+  it("pay-invoice() succeeds and returns invoice count without memo", () => {
     // ARRANGE
-    const simnet = await initSimnet();
     const accounts = simnet.getAccounts();
     const deployer = accounts.get("deployer")!;
     const address1 = accounts.get("wallet_1")!;
@@ -509,9 +490,8 @@ describe("Paying an invoice", () => {
     expect(response.result).toBeOk(Cl.uint(expectedCount));
   });
 
-  it("pay-invoice() succeeds and returns invoice count with memo", async () => {
+  it("pay-invoice() succeeds and returns invoice count with memo", () => {
     // ARRANGE
-    const simnet = await initSimnet();
     const accounts = simnet.getAccounts();
     const deployer = accounts.get("deployer")!;
     const address1 = accounts.get("wallet_1")!;
@@ -539,9 +519,8 @@ describe("Paying an invoice", () => {
     expect(response.result).toBeOk(Cl.uint(expectedCount));
   });
 
-  it("pay-invoice() succeeds and returns invoice count with memo over several blocks", async () => {
+  it("pay-invoice() succeeds and returns invoice count with memo over several blocks", () => {
     // ARRANGE
-    const simnet = await initSimnet();
     const accounts = simnet.getAccounts();
     const deployer = accounts.get("deployer")!;
     const address1 = accounts.get("wallet_1")!;
@@ -625,9 +604,8 @@ describe("Paying an invoice", () => {
     }
   });
 
-  it("pay-invoice() succeeds and updates resource and user data", async () => {
+  it("pay-invoice() succeeds and updates resource and user data", () => {
     // ARRANGE
-    const simnet = await initSimnet();
     const accounts = simnet.getAccounts();
     const address1 = accounts.get("wallet_1")!;
     const address2 = accounts.get("wallet_2")!;
