@@ -33,8 +33,7 @@
 (define-constant ERR_USER_NOT_FOUND (err u1008))
 (define-constant ERR_INVOICE_ALREADY_PAID (err u1009))
 (define-constant ERR_SAVING_INVOICE_DATA (err u1010))
-(define-constant ERR_INVOICE_HASH_NOT_FOUND (err u1011))
-(define-constant ERR_SETTING_MEMO_ON_TRANSFER (err u1012))
+(define-constant ERR_SETTING_MEMO_ON_TRANSFER (err u1011))
 
 ;; data vars
 ;;
@@ -400,7 +399,7 @@
         (newCount (+ (get-total-users) u1))
       )
       ;; update UserIndexes map, check address is unique
-      (asserts! (map-insert UserIndexes address newCount) ERR_SAVING_USER_DATA)
+      (asserts! (map-insert UserIndexes address newCount) ERR_USER_ALREADY_EXISTS)
       ;; update UserData map
       (asserts! (map-insert UserData 
         newCount
