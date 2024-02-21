@@ -13,14 +13,13 @@ enum ErrCode {
   ERR_USER_NOT_FOUND,
   ERR_INVOICE_ALREADY_PAID,
   ERR_SAVING_INVOICE_DATA,
-  ERR_SETTING_MEMO_ON_TRANSFER,
 }
 
 const createResource = (name: string, desc: string, price: number) => {
   return [Cl.stringUtf8(name), Cl.stringUtf8(desc), Cl.uint(price)];
 };
 
-const defaultPrice = 1_000_000; // 1 STX
+const defaultPrice = 10_000; // 0.0001 aBTC
 
 const testResource = [
   Cl.stringUtf8("Bitcoin Face"),
@@ -469,6 +468,13 @@ describe("Paying an invoice", () => {
     const address1 = accounts.get("wallet_1")!;
     const expectedCount = 1;
     // ACT
+    // mint aBTC to pay for resources
+    simnet.callPublicFn(
+      "stacks-m2m-abtc",
+      "faucet-flood",
+      [Cl.principal(address1)],
+      address1
+    );
     // add a resource
     simnet.callPublicFn(
       "stacks-m2m-v2",
@@ -498,6 +504,13 @@ describe("Paying an invoice", () => {
     const expectedCount = 1;
     const memo = Buffer.from("This is a memo test!");
     // ACT
+    // mint aBTC to pay for resources
+    simnet.callPublicFn(
+      "stacks-m2m-abtc",
+      "faucet-flood",
+      [Cl.principal(address1)],
+      address1
+    );
     // add a resource
     simnet.callPublicFn(
       "stacks-m2m-v2",
@@ -529,6 +542,27 @@ describe("Paying an invoice", () => {
     const expectedCount = 1;
     const memo = Cl.none();
     // ACT
+    // mint aBTC to pay for resources
+    simnet.callPublicFn(
+      "stacks-m2m-abtc",
+      "faucet-flood",
+      [Cl.principal(address1)],
+      address1
+    );
+    // mint aBTC to pay for resources
+    simnet.callPublicFn(
+      "stacks-m2m-abtc",
+      "faucet-flood",
+      [Cl.principal(address2)],
+      address2
+    );
+    // mint aBTC to pay for resources
+    simnet.callPublicFn(
+      "stacks-m2m-abtc",
+      "faucet-flood",
+      [Cl.principal(address3)],
+      address3
+    );
     // add a resource
     simnet.callPublicFn(
       "stacks-m2m-v2",
@@ -612,6 +646,19 @@ describe("Paying an invoice", () => {
     const deployer = accounts.get("deployer")!;
     const memo = Cl.none();
     // ACT
+    // mint aBTC to pay for resources
+    simnet.callPublicFn(
+      "stacks-m2m-abtc",
+      "faucet-flood",
+      [Cl.principal(address1)],
+      address1
+    );
+    simnet.callPublicFn(
+      "stacks-m2m-abtc",
+      "faucet-flood",
+      [Cl.principal(address2)],
+      address2
+    );
     // add a resource
     simnet.callPublicFn(
       "stacks-m2m-v2",
@@ -666,7 +713,7 @@ describe("Paying an invoice", () => {
     // ASSERT
     expect(resourceResponse.result).toBeSome(
       Cl.tuple({
-        createdAt: Cl.uint(2),
+        createdAt: Cl.uint(4),
         description: Cl.stringUtf8("Generate a unique Bitcoin face."),
         name: Cl.stringUtf8("Bitcoin Face"),
         price: Cl.uint(defaultPrice),

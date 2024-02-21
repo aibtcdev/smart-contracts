@@ -7,14 +7,6 @@
 ;;
 (impl-trait .stacks-m2m-trait-v1.stacks-m2m-trait-v1)
 
-;; tokens
-;; 
-;; MAINNET
-;; xBTC SP3K8BC0PPEVCV7NZ6QSRWPQ2JE9E5B6N3PA0KBR9.token-wbtc
-;; aBTC SP3K8BC0PPEVCV7NZ6QSRWPQ2JE9E5B6N3PA0KBR9.token-abtc
-;; TESTNET
-(define-constant ABTC_CONTRACT .stacks-m2m-abtc)
-
 ;; constants
 ;;
 
@@ -37,7 +29,6 @@
 (define-constant ERR_USER_NOT_FOUND (err u1008))
 (define-constant ERR_INVOICE_ALREADY_PAID (err u1009))
 (define-constant ERR_SAVING_INVOICE_DATA (err u1010))
-(define-constant ERR_SETTING_MEMO_ON_TRANSFER (err u1011))
 
 ;; data vars
 ;;
@@ -82,8 +73,8 @@
   uint ;; resource index
   {
     createdAt: uint,
-    ;; enabled: bool, ;; use instead of deleting resources?
-    ;; url: (string-utf8 255), ;; would need setter, health check
+    ;; enabled: bool, ;; TODO: use instead of deleting resources?
+    ;; url: (optional (string-utf8 255)), ;; TODO: would need setter, health check
     name: (string-utf8 50),
     description: (string-utf8 255),
     price: uint,
@@ -275,8 +266,8 @@
       (userIndex (unwrap! (get-or-create-user contract-caller) ERR_USER_NOT_FOUND))
       (userData (unwrap! (get-user-data userIndex) ERR_USER_NOT_FOUND))
     )
-    ;; update InvoiceIndexes map, check invoice hash is unique
-    ;; (asserts! (map-insert InvoiceIndexes invoiceHash newCount) ERR_INVOICE_ALREADY_PAID)
+    ;; check that resourceIndex is > 0
+    (asserts! (> resourceIndex u0) ERR_INVALID_PARAMS)
     ;; update InvoiceData map
     (asserts! (map-insert InvoiceData
       newCount
@@ -324,8 +315,11 @@
     ;; make transfer
     (if (is-some memo)
       ;; TODO: check for guards on price setting
-      (try! (stx-transfer-memo? (get price resourceData) contract-caller (var-get paymentAddress) (unwrap! memo ERR_SETTING_MEMO_ON_TRANSFER)))
-      (try! (stx-transfer? (get price resourceData) contract-caller (var-get paymentAddress)))
+      ;; MAINNET
+      ;; xBTC SP3K8BC0PPEVCV7NZ6QSRWPQ2JE9E5B6N3PA0KBR9.token-wbtc
+      ;; aBTC SP3K8BC0PPEVCV7NZ6QSRWPQ2JE9E5B6N3PA0KBR9.token-abtc
+      (try! (contract-call? .stacks-m2m-abtc transfer (get price resourceData) contract-caller (var-get paymentAddress) memo))
+      (try! (contract-call? .stacks-m2m-abtc transfer (get price resourceData) contract-caller (var-get paymentAddress) none))
     )
     ;; return new count
     (ok newCount)
