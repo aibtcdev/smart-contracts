@@ -74,12 +74,12 @@
 
 ;; tracks resources added by deployer keyed by resource index
 ;; can iterate over full map with resourceCount data-var
-;; TODO: add string for URL / health checks? could it change?
 (define-map ResourceData
   uint ;; resource index
   {
     createdAt: uint,
     ;; enabled: bool, ;; use instead of deleting resources?
+    ;; url: (string-utf8 255), ;; would need setter, health check
     name: (string-utf8 50),
     description: (string-utf8 255),
     price: uint,
@@ -88,13 +88,17 @@
   }
 )
 
-;; tracks invoice indexes by invoice ID
-;; removed in favor of keying by INVOICE COUNT
-;;
-;; (define-map InvoiceIndexes
-;;   (buff 32) ;; invoice SHA256 hash
-;;   uint      ;; invoice index
-;; )
+;; tracks invoices paid by users requesting access to a resource
+(define-map InvoiceData
+  uint ;; invoice count
+  {
+    amount: uint,
+    createdAt: uint,
+    userIndex: uint,
+    resourceName: (string-utf8 50),
+    resourceIndex: uint,
+  }
+)
 
 ;; tracks last payment from user for a resource
 (define-map RecentPayments
@@ -105,18 +109,6 @@
   uint ;; invoice count
 )
 
-;; tracks invoices paid by users requesting access to a resource
-(define-map InvoiceData
-  uint ;; invoice count
-  {
-    amount: uint,
-    createdAt: uint,
-    ;;hash: (buff 32),
-    userIndex: uint,
-    resourceName: (string-utf8 50),
-    resourceIndex: uint,
-  }
-)
 
 ;; read only functions
 ;;
@@ -166,20 +158,10 @@
   (var-get invoiceCount)
 )
 
-;; returns invoice index for hash if known
-;; (define-read-only (get-invoice-index (hash (buff 32)))
-;;   (map-get? InvoiceIndexes hash)
-;; )
-
 ;; returns invoice data by invoice index if known
 (define-read-only (get-invoice (index uint))
   (map-get? InvoiceData index)
 )
-
-;; returns invoice data by invoice hash if known
-;; (define-read-only (get-invoice-by-hash (hash (buff 32)))
-;;   (get-invoice (unwrap! (get-invoice-index hash) none))
-;; )
 
 ;; returns invoice index by user index and resource index if known
 (define-read-only (get-recent-payment (resourceIndex uint) (userIndex uint))
@@ -203,38 +185,6 @@
 (define-read-only (get-payment-address)
   (some (var-get paymentAddress))
 )
-
-;; returns a unique but deterministic invoice hash based on:
-;; - the bitcoin block and stacks block values (time)
-;; - the user address requesting the invoice (who)
-;; - the resource the user is requesting (what)
-;; - the contract name (where)
-;; (define-read-only (get-invoice-hash (user principal) (resourceIndex uint) (blockHeight uint))
-;;   (let
-;;     (
-;;       ;; 32 byte bitcoin hash / stacks hash from block height
-;;       (btcBlockHash (unwrap! (get-block-info? burnchain-header-hash blockHeight) none))
-;;       (stxBlockHash (unwrap! (get-block-info? id-header-hash blockHeight) none))
-;;       ;; concatenate bitcoin + stacks hash into single buff
-;;       (combinedBlockHash (concat btcBlockHash stxBlockHash))
-;;       ;; 20 byte pubkey from address
-;;       (userDestruct (unwrap! (principal-destruct? user) none))
-;;       (userPubkey (get hash-bytes userDestruct))
-;;       ;; 32 byte resource hash, combo of resource name + contract name
-;;       (resourceData (unwrap! (get-resource resourceIndex) none))
-;;       (resourceName (unwrap! (to-consensus-buff? (get name resourceData)) none))
-;;       (contractName (unwrap! (to-consensus-buff? SELF) none))
-;;       (resourceInfo (concat resourceName contractName))
-;;       (resourceHash (sha256 resourceInfo))
-;;       ;; concatenate user pubkey + resource hash
-;;       (combinedUserHash (concat userPubkey resourceHash))
-;;       ;; concatenate both combined hashes for a single buff
-;;       (allCombinedHashes (concat combinedBlockHash combinedUserHash))
-;;     )
-;;     ;; return combined hash
-;;     (some (sha256 allCombinedHashes))
-;;   )
-;; )
 
 ;; public functions
 ;;
@@ -277,7 +227,6 @@
       newCount
       {
         createdAt: block-height,
-        ;; enabled: true,
         name: name,
         description: description,
         price: price,
