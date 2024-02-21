@@ -52,7 +52,7 @@ describe("Adding a resource", () => {
     const address1 = accounts.get("wallet_1")!;
     // ACT
     const response = simnet.callPublicFn(
-      "stacks-m2m-v1",
+      "stacks-m2m-v2",
       "add-resource",
       testResource,
       address1
@@ -68,7 +68,7 @@ describe("Adding a resource", () => {
     const deployer = accounts.get("deployer")!;
     // ACT
     const response = simnet.callPublicFn(
-      "stacks-m2m-v1",
+      "stacks-m2m-v2",
       "add-resource",
       createResource("", "description", defaultPrice),
       deployer
@@ -84,7 +84,7 @@ describe("Adding a resource", () => {
     const deployer = accounts.get("deployer")!;
     // ACT
     const response = simnet.callPublicFn(
-      "stacks-m2m-v1",
+      "stacks-m2m-v2",
       "add-resource",
       createResource("name", "", defaultPrice),
       deployer
@@ -100,7 +100,7 @@ describe("Adding a resource", () => {
     const deployer = accounts.get("deployer")!;
     // ACT
     const response = simnet.callPublicFn(
-      "stacks-m2m-v1",
+      "stacks-m2m-v2",
       "add-resource",
       createResource("name", "description", 0),
       deployer
@@ -116,13 +116,13 @@ describe("Adding a resource", () => {
     const expectedCount = 1;
     // ACT
     const firstResponse = simnet.callPublicFn(
-      "stacks-m2m-v1",
+      "stacks-m2m-v2",
       "add-resource",
       testResource,
       deployer
     );
     const secondResponse = simnet.callPublicFn(
-      "stacks-m2m-v1",
+      "stacks-m2m-v2",
       "add-resource",
       testResource,
       deployer
@@ -142,19 +142,19 @@ describe("Adding a resource", () => {
     const expectedCount = 1;
     // ACT
     const oldCount = simnet.callReadOnlyFn(
-      "stacks-m2m-v1",
+      "stacks-m2m-v2",
       "get-total-resources",
       [],
       deployer
     );
     const response = simnet.callPublicFn(
-      "stacks-m2m-v1",
+      "stacks-m2m-v2",
       "add-resource",
       testResource,
       deployer
     );
     const newCount = simnet.callReadOnlyFn(
-      "stacks-m2m-v1",
+      "stacks-m2m-v2",
       "get-total-resources",
       [],
       deployer
@@ -176,7 +176,7 @@ describe("Deleting a Resource", () => {
     // ACT
     // create resource
     simnet.callPublicFn(
-      "stacks-m2m-v1",
+      "stacks-m2m-v2",
       "add-resource",
       testResource,
       deployer
@@ -185,7 +185,7 @@ describe("Deleting a Resource", () => {
     simnet.mineEmptyBlocks(5000);
     // delete resource
     const response = simnet.callPublicFn(
-      "stacks-m2m-v1",
+      "stacks-m2m-v2",
       "delete-resource",
       [Cl.uint(1)],
       address1
@@ -201,7 +201,7 @@ describe("Deleting a Resource", () => {
     const deployer = accounts.get("deployer")!;
     // ACT
     const response = simnet.callPublicFn(
-      "stacks-m2m-v1",
+      "stacks-m2m-v2",
       "delete-resource",
       [Cl.uint(1)],
       deployer
@@ -218,7 +218,7 @@ describe("Deleting a Resource", () => {
     // ACT
     // create resource
     simnet.callPublicFn(
-      "stacks-m2m-v1",
+      "stacks-m2m-v2",
       "add-resource",
       testResource,
       deployer
@@ -227,7 +227,7 @@ describe("Deleting a Resource", () => {
     simnet.mineEmptyBlocks(5000);
     // delete resource
     simnet.callPublicFn(
-      "stacks-m2m-v1",
+      "stacks-m2m-v2",
       "delete-resource",
       [Cl.uint(1)],
       deployer
@@ -236,7 +236,7 @@ describe("Deleting a Resource", () => {
     simnet.mineEmptyBlocks(5000);
     // delete resource again
     const response = simnet.callPublicFn(
-      "stacks-m2m-v1",
+      "stacks-m2m-v2",
       "delete-resource",
       [Cl.uint(1)],
       deployer
@@ -256,7 +256,7 @@ describe("Deleting a Resource", () => {
     // ACT
     // create resource
     simnet.callPublicFn(
-      "stacks-m2m-v1",
+      "stacks-m2m-v2",
       "add-resource",
       testResource,
       deployer
@@ -265,7 +265,7 @@ describe("Deleting a Resource", () => {
     simnet.mineEmptyBlocks(5000);
     // delete resource
     const response = simnet.callPublicFn(
-      "stacks-m2m-v1",
+      "stacks-m2m-v2",
       "delete-resource-by-name",
       [Cl.stringUtf8("Bitcoin Face")],
       address1
@@ -281,7 +281,7 @@ describe("Deleting a Resource", () => {
     const deployer = accounts.get("deployer")!;
     // ACT
     const response = simnet.callPublicFn(
-      "stacks-m2m-v1",
+      "stacks-m2m-v2",
       "delete-resource-by-name",
       [Cl.stringUtf8("Nothingburger")],
       deployer
@@ -299,7 +299,7 @@ describe("Deleting a Resource", () => {
     // ACT
     // create resource
     simnet.callPublicFn(
-      "stacks-m2m-v1",
+      "stacks-m2m-v2",
       "add-resource",
       testResource,
       deployer
@@ -308,7 +308,7 @@ describe("Deleting a Resource", () => {
     simnet.mineEmptyBlocks(5000);
     // delete resource
     simnet.callPublicFn(
-      "stacks-m2m-v1",
+      "stacks-m2m-v2",
       "delete-resource",
       [Cl.uint(1)],
       deployer
@@ -317,7 +317,7 @@ describe("Deleting a Resource", () => {
     simnet.mineEmptyBlocks(5000);
     // pay invoice
     const response = simnet.callPublicFn(
-      "stacks-m2m-v1",
+      "stacks-m2m-v2",
       "pay-invoice",
       [
         Cl.uint(1), // resource index
@@ -339,7 +339,7 @@ describe("Setting a Payment Address", () => {
     // ACT
     // get current payment address
     const currentPaymentAddressResponse = simnet.callReadOnlyFn(
-      "stacks-m2m-v1",
+      "stacks-m2m-v2",
       "get-payment-address",
       [],
       address1
@@ -350,7 +350,7 @@ describe("Setting a Payment Address", () => {
     );
     // set payment address
     const response = simnet.callPublicFn(
-      "stacks-m2m-v1",
+      "stacks-m2m-v2",
       "set-payment-address",
       [
         Cl.standardPrincipal(currentPaymentAddress.value),
@@ -371,7 +371,7 @@ describe("Setting a Payment Address", () => {
     // ACT
     // set payment address
     const response = simnet.callPublicFn(
-      "stacks-m2m-v1",
+      "stacks-m2m-v2",
       "set-payment-address",
       [Cl.standardPrincipal(address1), Cl.standardPrincipal(address1)],
       deployer
@@ -390,7 +390,7 @@ describe("Setting a Payment Address", () => {
     // ACT
     // get current payment address
     const currentPaymentAddressResponse = simnet.callReadOnlyFn(
-      "stacks-m2m-v1",
+      "stacks-m2m-v2",
       "get-payment-address",
       [],
       address1
@@ -401,7 +401,7 @@ describe("Setting a Payment Address", () => {
     );
     // set payment address
     const response = simnet.callPublicFn(
-      "stacks-m2m-v1",
+      "stacks-m2m-v2",
       "set-payment-address",
       [
         Cl.standardPrincipal(currentPaymentAddress.value),
@@ -424,7 +424,7 @@ describe("Setting a Payment Address", () => {
     // ACT
     // get current payment address
     const currentPaymentAddressResponse = simnet.callReadOnlyFn(
-      "stacks-m2m-v1",
+      "stacks-m2m-v2",
       "get-payment-address",
       [],
       address1
@@ -435,7 +435,7 @@ describe("Setting a Payment Address", () => {
     );
     // set payment address
     const response = simnet.callPublicFn(
-      "stacks-m2m-v1",
+      "stacks-m2m-v2",
       "set-payment-address",
       [
         Cl.standardPrincipal(currentPaymentAddress.value),
@@ -447,7 +447,7 @@ describe("Setting a Payment Address", () => {
     simnet.mineEmptyBlocks(5000);
     // get current payment address again
     const updatedPaymentAddressResponse = simnet.callReadOnlyFn(
-      "stacks-m2m-v1",
+      "stacks-m2m-v2",
       "get-payment-address",
       [],
       address1
@@ -458,7 +458,7 @@ describe("Setting a Payment Address", () => {
     );
     // set payment address again
     const secondResponse = simnet.callPublicFn(
-      "stacks-m2m-v1",
+      "stacks-m2m-v2",
       "set-payment-address",
       [Cl.standardPrincipal(address1), Cl.standardPrincipal(address2)],
       address1
@@ -478,7 +478,7 @@ describe("Generating an invoice hash", () => {
     const deployer = accounts.get("deployer")!;
     // ACT
     const response = simnet.callReadOnlyFn(
-      "stacks-m2m-v1",
+      "stacks-m2m-v2",
       "get-invoice-hash",
       [
         Cl.standardPrincipal(deployer), // user
@@ -498,13 +498,13 @@ describe("Generating an invoice hash", () => {
     const deployer = accounts.get("deployer")!;
     // ACT
     simnet.callPublicFn(
-      "stacks-m2m-v1",
+      "stacks-m2m-v2",
       "add-resource",
       testResource,
       deployer
     );
     const response = simnet.callReadOnlyFn(
-      "stacks-m2m-v1",
+      "stacks-m2m-v2",
       "get-invoice-hash",
       [
         Cl.standardPrincipal(deployer), // user
@@ -524,14 +524,14 @@ describe("Generating an invoice hash", () => {
     const deployer = accounts.get("deployer")!;
     // ACT
     simnet.callPublicFn(
-      "stacks-m2m-v1",
+      "stacks-m2m-v2",
       "add-resource",
       testResource,
       deployer
     );
     simnet.mineEmptyBlocks(5000);
     const response = simnet.callReadOnlyFn(
-      "stacks-m2m-v1",
+      "stacks-m2m-v2",
       "get-invoice-hash",
       [
         Cl.standardPrincipal(deployer), // user
@@ -556,7 +556,7 @@ describe("Generating an invoice hash", () => {
     // ACT
     // add a resource
     simnet.callPublicFn(
-      "stacks-m2m-v1",
+      "stacks-m2m-v2",
       "add-resource",
       testResource,
       deployer
@@ -568,7 +568,7 @@ describe("Generating an invoice hash", () => {
     for (const wallet of wallets) {
       for (let i = 0; i < 500; i++) {
         const response = simnet.callReadOnlyFn(
-          "stacks-m2m-v1",
+          "stacks-m2m-v2",
           "get-invoice-hash",
           [
             Cl.standardPrincipal(wallet), // user
@@ -599,7 +599,7 @@ describe("Generating an invoice hash", () => {
     // ACT
     // add a resource
     simnet.callPublicFn(
-      "stacks-m2m-v1",
+      "stacks-m2m-v2",
       "add-resource",
       testResource,
       deployer
@@ -611,7 +611,7 @@ describe("Generating an invoice hash", () => {
     for (const wallet of wallets) {
       for (let i = 0; i < 500; i++) {
         const response = simnet.callReadOnlyFn(
-          "stacks-m2m-v1",
+          "stacks-m2m-v2",
           "get-invoice-hash",
           [
             Cl.standardPrincipal(wallet), // user
@@ -630,7 +630,7 @@ describe("Generating an invoice hash", () => {
     for (const wallet of wallets) {
       for (let i = 0; i < 500; i++) {
         const response = simnet.callReadOnlyFn(
-          "stacks-m2m-v1",
+          "stacks-m2m-v2",
           "get-invoice-hash",
           [
             Cl.standardPrincipal(wallet), // user
@@ -657,7 +657,7 @@ describe("Paying an invoice", () => {
     const address1 = accounts.get("wallet_1")!;
     // ACT
     const response = simnet.callPublicFn(
-      "stacks-m2m-v1",
+      "stacks-m2m-v2",
       "pay-invoice",
       [
         Cl.uint(0), // resource index
@@ -684,14 +684,14 @@ describe("Paying an invoice", () => {
     // ACT
     // add a resource
     simnet.callPublicFn(
-      "stacks-m2m-v1",
+      "stacks-m2m-v2",
       "add-resource",
       testResource,
       deployer
     );
     // pay invoice for resource
     const response = simnet.callPublicFn(
-      "stacks-m2m-v1",
+      "stacks-m2m-v2",
       "pay-invoice",
       [
         Cl.uint(1), // resource index
@@ -714,14 +714,14 @@ describe("Paying an invoice", () => {
     // ACT
     // add a resource
     simnet.callPublicFn(
-      "stacks-m2m-v1",
+      "stacks-m2m-v2",
       "add-resource",
       testResource,
       deployer
     );
     // pay invoice for resource
     const response = simnet.callPublicFn(
-      "stacks-m2m-v1",
+      "stacks-m2m-v2",
       "pay-invoice",
       [
         Cl.uint(1), // resource index
@@ -746,7 +746,7 @@ describe("Paying an invoice", () => {
     // ACT
     // add a resource
     simnet.callPublicFn(
-      "stacks-m2m-v1",
+      "stacks-m2m-v2",
       "add-resource",
       testResource,
       deployer
@@ -754,7 +754,7 @@ describe("Paying an invoice", () => {
     // pay invoice once for 3 users
     const blockResponses = [
       simnet.callPublicFn(
-        "stacks-m2m-v1",
+        "stacks-m2m-v2",
         "pay-invoice",
         [
           Cl.uint(1), // resource index
@@ -763,7 +763,7 @@ describe("Paying an invoice", () => {
         address1
       ),
       simnet.callPublicFn(
-        "stacks-m2m-v1",
+        "stacks-m2m-v2",
         "pay-invoice",
         [
           Cl.uint(1), // resource index
@@ -772,7 +772,7 @@ describe("Paying an invoice", () => {
         address2
       ),
       simnet.callPublicFn(
-        "stacks-m2m-v1",
+        "stacks-m2m-v2",
         "pay-invoice",
         [
           Cl.uint(1), // resource index
@@ -786,7 +786,7 @@ describe("Paying an invoice", () => {
     // pay invoice again for 3 users
     blockResponses.push(
       simnet.callPublicFn(
-        "stacks-m2m-v1",
+        "stacks-m2m-v2",
         "pay-invoice",
         [
           Cl.uint(1), // resource index
@@ -795,7 +795,7 @@ describe("Paying an invoice", () => {
         address1
       ),
       simnet.callPublicFn(
-        "stacks-m2m-v1",
+        "stacks-m2m-v2",
         "pay-invoice",
         [
           Cl.uint(1), // resource index
@@ -804,7 +804,7 @@ describe("Paying an invoice", () => {
         address2
       ),
       simnet.callPublicFn(
-        "stacks-m2m-v1",
+        "stacks-m2m-v2",
         "pay-invoice",
         [
           Cl.uint(1), // resource index
@@ -830,14 +830,14 @@ describe("Paying an invoice", () => {
     // ACT
     // add a resource
     simnet.callPublicFn(
-      "stacks-m2m-v1",
+      "stacks-m2m-v2",
       "add-resource",
       testResource,
       deployer
     );
     // pay invoice for resource
     simnet.callPublicFn(
-      "stacks-m2m-v1",
+      "stacks-m2m-v2",
       "pay-invoice",
       [
         Cl.uint(1), // resource index
@@ -849,7 +849,7 @@ describe("Paying an invoice", () => {
     simnet.mineEmptyBlocks(5000);
     // pay invoice again for resource
     simnet.callPublicFn(
-      "stacks-m2m-v1",
+      "stacks-m2m-v2",
       "pay-invoice",
       [
         Cl.uint(1), // resource index
@@ -861,20 +861,20 @@ describe("Paying an invoice", () => {
     simnet.mineEmptyBlocks(5000);
     // get resource
     const resourceResponse = simnet.callReadOnlyFn(
-      "stacks-m2m-v1",
+      "stacks-m2m-v2",
       "get-resource",
       [Cl.uint(1)],
       deployer
     );
     // get user
     const userResponseOne = simnet.callReadOnlyFn(
-      "stacks-m2m-v1",
+      "stacks-m2m-v2",
       "get-user-data-by-address",
       [Cl.standardPrincipal(address1)],
       deployer
     );
     const userResponseTwo = simnet.callReadOnlyFn(
-      "stacks-m2m-v1",
+      "stacks-m2m-v2",
       "get-user-data-by-address",
       [Cl.standardPrincipal(address2)],
       deployer
