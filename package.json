@@ -2,7 +2,7 @@
   "name": "stacks-m2m-contracts",
   "description": "Machine-payable transactions on Stacks.",
   "author": "",
-  "version": "0.0.1",
+  "version": "0.0.2",
   "license": "MIT",
   "type": "module",
   "private": true,
