@@ -144,8 +144,8 @@ describe("Adding a resource", () => {
   });
 });
 
-describe("Deleting a Resource", () => {
-  it("delete-resource() fails if not called by deployer", () => {
+describe("Toggling a Resource Status", () => {
+  it("toggle-resource() fails if not called by deployer", () => {
     // ARRANGE
     const accounts = simnet.getAccounts();
     const deployer = accounts.get("deployer")!;
@@ -160,10 +160,10 @@ describe("Deleting a Resource", () => {
     );
     // progress the chain
     simnet.mineEmptyBlocks(5000);
-    // delete resource
+    // toggle resource
     const response = simnet.callPublicFn(
       "stacks-m2m-v2",
-      "delete-resource",
+      "toggle-resource",
       [Cl.uint(1)],
       address1
     );
@@ -171,22 +171,22 @@ describe("Deleting a Resource", () => {
     expect(response.result).toBeErr(Cl.uint(ErrCode.ERR_UNAUTHORIZED));
   });
 
-  it("delete-resource() fails if provided index is greater than current resource count", () => {
+  it("toggle-resource() fails if provided index is greater than current resource count", () => {
     // ARRANGE
     const accounts = simnet.getAccounts();
     const deployer = accounts.get("deployer")!;
     // ACT
     const response = simnet.callPublicFn(
       "stacks-m2m-v2",
-      "delete-resource",
-      [Cl.uint(1)],
+      "toggle-resource",
+      [Cl.uint(10)],
       deployer
     );
     // ASSERT
-    expect(response.result).toBeErr(Cl.uint(ErrCode.ERR_INVALID_PARAMS));
+    expect(response.result).toBeErr(Cl.uint(ErrCode.ERR_RESOURCE_NOT_FOUND));
   });
 
-  it("delete-resource() fails if executed twice on the same resource", () => {
+  it("toggle-resource() succeeds and toggles resource status", () => {
     // ARRANGE
     const accounts = simnet.getAccounts();
     const deployer = accounts.get("deployer")!;
@@ -200,29 +200,65 @@ describe("Deleting a Resource", () => {
     );
     // progress the chain
     simnet.mineEmptyBlocks(5000);
-    // delete resource
-    simnet.callPublicFn(
+    // toggle resource
+    const response = simnet.callPublicFn(
       "stacks-m2m-v2",
-      "delete-resource",
+      "toggle-resource",
+      [Cl.uint(1)],
+      deployer
+    );
+    // get resource
+    const resourceResponse = simnet.callReadOnlyFn(
+      "stacks-m2m-v2",
+      "get-resource",
       [Cl.uint(1)],
       deployer
     );
     // progress the chain
     simnet.mineEmptyBlocks(5000);
-    // delete resource again
-    const response = simnet.callPublicFn(
+    // toggle resource
+    const response2 = simnet.callPublicFn(
       "stacks-m2m-v2",
-      "delete-resource",
+      "toggle-resource",
       [Cl.uint(1)],
       deployer
     );
+    // get resource
+    const resourceResponse2 = simnet.callReadOnlyFn(
+      "stacks-m2m-v2",
+      "get-resource",
+      [Cl.uint(1)],
+      deployer
+    );
+
     // ASSERT
-    expect(response.result).toBeErr(
-      Cl.uint(ErrCode.ERR_DELETING_RESOURCE_DATA)
+    expect(response.result).toBeOk(Cl.bool(false));
+    expect(resourceResponse.result).toBeSome(
+      Cl.tuple({
+        createdAt: Cl.uint(2),
+        enabled: Cl.bool(false),
+        description: Cl.stringUtf8("Generate a unique Bitcoin face."),
+        name: Cl.stringUtf8("Bitcoin Face"),
+        price: Cl.uint(defaultPrice),
+        totalSpent: Cl.uint(0),
+        totalUsed: Cl.uint(0),
+      })
+    );
+    expect(response2.result).toBeOk(Cl.bool(true));
+    expect(resourceResponse2.result).toBeSome(
+      Cl.tuple({
+        createdAt: Cl.uint(2),
+        enabled: Cl.bool(true),
+        description: Cl.stringUtf8("Generate a unique Bitcoin face."),
+        name: Cl.stringUtf8("Bitcoin Face"),
+        price: Cl.uint(defaultPrice),
+        totalSpent: Cl.uint(0),
+        totalUsed: Cl.uint(0),
+      })
     );
   });
 
-  it("delete-resource-by-name() fails if not called by deployer", () => {
+  it("toggle-resource-by-name(): fails if not called by deployer", () => {
     // ARRANGE
     const accounts = simnet.getAccounts();
     const deployer = accounts.get("deployer")!;
@@ -237,10 +273,10 @@ describe("Deleting a Resource", () => {
     );
     // progress the chain
     simnet.mineEmptyBlocks(5000);
-    // delete resource
+    // toggle resource
     const response = simnet.callPublicFn(
       "stacks-m2m-v2",
-      "delete-resource-by-name",
+      "toggle-resource-by-name",
       [Cl.stringUtf8("Bitcoin Face")],
       address1
     );
@@ -248,25 +284,24 @@ describe("Deleting a Resource", () => {
     expect(response.result).toBeErr(Cl.uint(ErrCode.ERR_UNAUTHORIZED));
   });
 
-  it("delete-resource-by-name() fails if provided name is not found", () => {
+  it("toggle-resource-by-name() fails if provided name is not found", () => {
     // ARRANGE
     const accounts = simnet.getAccounts();
     const deployer = accounts.get("deployer")!;
     // ACT
     const response = simnet.callPublicFn(
       "stacks-m2m-v2",
-      "delete-resource-by-name",
+      "toggle-resource-by-name",
       [Cl.stringUtf8("Nothingburger")],
       deployer
     );
     // ASSERT
-    expect(response.result).toBeErr(Cl.uint(ErrCode.ERR_INVALID_PARAMS));
+    expect(response.result).toBeErr(Cl.uint(ErrCode.ERR_RESOURCE_NOT_FOUND));
   });
 
-  it("pay-invoice() fails for a deleted resource", () => {
+  it("toggle-resource-by-name() succeeds and toggles resource status", () => {
     // ARRANGE
     const accounts = simnet.getAccounts();
-    const address1 = accounts.get("wallet_1")!;
     const deployer = accounts.get("deployer")!;
     // ACT
     // create resource
@@ -278,27 +313,62 @@ describe("Deleting a Resource", () => {
     );
     // progress the chain
     simnet.mineEmptyBlocks(5000);
-    // delete resource
-    simnet.callPublicFn(
+    // toggle resource
+    const response = simnet.callPublicFn(
       "stacks-m2m-v2",
-      "delete-resource",
+      "toggle-resource-by-name",
+      [Cl.stringUtf8("Bitcoin Face")],
+      deployer
+    );
+    // get resource
+    const resourceResponse = simnet.callReadOnlyFn(
+      "stacks-m2m-v2",
+      "get-resource",
       [Cl.uint(1)],
       deployer
     );
     // progress the chain
     simnet.mineEmptyBlocks(5000);
-    // pay invoice
-    const response = simnet.callPublicFn(
+    // toggle resource
+    const response2 = simnet.callPublicFn(
       "stacks-m2m-v2",
-      "pay-invoice",
-      [
-        Cl.uint(1), // resource index
-        Cl.none(), // memo
-      ],
-      address1
+      "toggle-resource-by-name",
+      [Cl.stringUtf8("Bitcoin Face")],
+      deployer
     );
+    // get resource
+    const resourceResponse2 = simnet.callReadOnlyFn(
+      "stacks-m2m-v2",
+      "get-resource",
+      [Cl.uint(1)],
+      deployer
+    );
+
     // ASSERT
-    expect(response.result).toBeErr(Cl.uint(ErrCode.ERR_RESOURCE_NOT_FOUND));
+    expect(response.result).toBeOk(Cl.bool(false));
+    expect(resourceResponse.result).toBeSome(
+      Cl.tuple({
+        createdAt: Cl.uint(2),
+        enabled: Cl.bool(false),
+        description: Cl.stringUtf8("Generate a unique Bitcoin face."),
+        name: Cl.stringUtf8("Bitcoin Face"),
+        price: Cl.uint(defaultPrice),
+        totalSpent: Cl.uint(0),
+        totalUsed: Cl.uint(0),
+      })
+    );
+    expect(response2.result).toBeOk(Cl.bool(true));
+    expect(resourceResponse2.result).toBeSome(
+      Cl.tuple({
+        createdAt: Cl.uint(2),
+        enabled: Cl.bool(true),
+        description: Cl.stringUtf8("Generate a unique Bitcoin face."),
+        name: Cl.stringUtf8("Bitcoin Face"),
+        price: Cl.uint(defaultPrice),
+        totalSpent: Cl.uint(0),
+        totalUsed: Cl.uint(0),
+      })
+    );
   });
 });
 
@@ -438,7 +508,7 @@ describe("Setting a Payment Address", () => {
   });
 });
 
-describe("Paying an invoice", () => {
+describe("Paying an Invoice", () => {
   it("pay-invoice() fails if resource is not found", () => {
     // ARRANGE
     const accounts = simnet.getAccounts();
@@ -455,6 +525,40 @@ describe("Paying an invoice", () => {
     );
     // ASSERT
     expect(response.result).toBeErr(Cl.uint(ErrCode.ERR_RESOURCE_NOT_FOUND));
+  });
+
+  it("pay-invoice() fails if resource is not enabled", () => {
+    // ARRANGE
+    const accounts = simnet.getAccounts();
+    const deployer = accounts.get("deployer")!;
+    const address1 = accounts.get("wallet_1")!;
+    // ACT
+    // add a resource
+    simnet.callPublicFn(
+      "stacks-m2m-v2",
+      "add-resource",
+      testResource,
+      deployer
+    );
+    // toggle resource
+    simnet.callPublicFn(
+      "stacks-m2m-v2",
+      "toggle-resource",
+      [Cl.uint(1)],
+      deployer
+    );
+    // pay invoice for resource
+    const response = simnet.callPublicFn(
+      "stacks-m2m-v2",
+      "pay-invoice",
+      [
+        Cl.uint(1), // resource index
+        Cl.none(), // memo
+      ],
+      address1
+    );
+    // ASSERT
+    expect(response.result).toBeErr(Cl.uint(ErrCode.ERR_RESOURCE_NOT_ENABLED));
   });
   // not expecting ERR_USER_NOT_FOUND, not sure if we can force?
   // it("pay-invoice() fails if user cannot be created or found", () => {})
@@ -715,6 +819,7 @@ describe("Paying an invoice", () => {
     expect(resourceResponse.result).toBeSome(
       Cl.tuple({
         createdAt: Cl.uint(4),
+        enabled: Cl.bool(true),
         description: Cl.stringUtf8("Generate a unique Bitcoin face."),
         name: Cl.stringUtf8("Bitcoin Face"),
         price: Cl.uint(defaultPrice),
