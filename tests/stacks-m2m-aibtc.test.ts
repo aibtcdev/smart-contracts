@@ -9,21 +9,21 @@ const FAUCET_DRIP = 10_000; // 0.0001 BTC
 const FAUCET_DROP = 1_000_000; // 0.01 BTC
 const FAUCET_FLOOD = 100_000_000; // 1 BTC
 
-describe("stacks-m2m-abtc", () => {
+describe("stacks-m2m-aibtc", () => {
   // faucet drip
-  it(`faucet-drip(): succeeds and mints ${FAUCET_DRIP} aBTC`, () => {
+  it(`faucet-drip(): succeeds and mints ${FAUCET_DRIP} aiBTC`, () => {
     // ARRANGE
     const accounts = simnet.getAccounts();
     const address1 = accounts.get("wallet_1")!;
     // ACT
     const response = simnet.callPublicFn(
-      "stacks-m2m-abtc",
+      "stacks-m2m-aibtc",
       "faucet-drip",
       [Cl.principal(address1)],
       address1
     );
     const balance = simnet.callReadOnlyFn(
-      "stacks-m2m-abtc",
+      "stacks-m2m-aibtc",
       "get-balance",
       [Cl.principal(address1)],
       address1
@@ -33,19 +33,19 @@ describe("stacks-m2m-abtc", () => {
     expect(balance.result).toBeOk(Cl.uint(FAUCET_DRIP));
   });
   // faucet drop
-  it(`faucet-drop(): succeeds and mints ${FAUCET_DROP} aBTC`, () => {
+  it(`faucet-drop(): succeeds and mints ${FAUCET_DROP} aiBTC`, () => {
     // ARRANGE
     const accounts = simnet.getAccounts();
     const address1 = accounts.get("wallet_1")!;
     // ACT
     const response = simnet.callPublicFn(
-      "stacks-m2m-abtc",
+      "stacks-m2m-aibtc",
       "faucet-drop",
       [Cl.principal(address1)],
       address1
     );
     const balance = simnet.callReadOnlyFn(
-      "stacks-m2m-abtc",
+      "stacks-m2m-aibtc",
       "get-balance",
       [Cl.principal(address1)],
       address1
@@ -55,19 +55,19 @@ describe("stacks-m2m-abtc", () => {
     expect(balance.result).toBeOk(Cl.uint(FAUCET_DROP));
   });
   // faucet flood
-  it(`faucet-flood(): succeeds and mints ${FAUCET_FLOOD} aBTC`, () => {
+  it(`faucet-flood(): succeeds and mints ${FAUCET_FLOOD} aiBTC`, () => {
     // ARRANGE
     const accounts = simnet.getAccounts();
     const address1 = accounts.get("wallet_1")!;
     // ACT
     const response = simnet.callPublicFn(
-      "stacks-m2m-abtc",
+      "stacks-m2m-aibtc",
       "faucet-flood",
       [Cl.principal(address1)],
       address1
     );
     const balance = simnet.callReadOnlyFn(
-      "stacks-m2m-abtc",
+      "stacks-m2m-aibtc",
       "get-balance",
       [Cl.principal(address1)],
       address1
@@ -77,7 +77,7 @@ describe("stacks-m2m-abtc", () => {
     expect(balance.result).toBeOk(Cl.uint(FAUCET_FLOOD));
   });
   // transfer works
-  it("transfer(): succeeds and transfers aBTC between accounts", () => {
+  it("transfer(): succeeds and transfers aiBTC between accounts", () => {
     // ARRANGE
     const accounts = simnet.getAccounts();
     const address1 = accounts.get("wallet_1")!;
@@ -86,19 +86,19 @@ describe("stacks-m2m-abtc", () => {
 
     const funding = [
       simnet.callPublicFn(
-        "stacks-m2m-abtc",
+        "stacks-m2m-aibtc",
         "faucet-flood",
         [Cl.principal(address1)],
         address1
       ),
       simnet.callPublicFn(
-        "stacks-m2m-abtc",
+        "stacks-m2m-aibtc",
         "faucet-flood",
         [Cl.principal(address2)],
         address2
       ),
       simnet.callPublicFn(
-        "stacks-m2m-abtc",
+        "stacks-m2m-aibtc",
         "faucet-flood",
         [Cl.principal(address3)],
         address3
@@ -108,7 +108,7 @@ describe("stacks-m2m-abtc", () => {
 
     // xfer from 1 to 2
     const transfer1 = simnet.callPublicFn(
-      "stacks-m2m-abtc",
+      "stacks-m2m-aibtc",
       "transfer",
       [
         Cl.uint(FAUCET_DRIP),
@@ -120,7 +120,7 @@ describe("stacks-m2m-abtc", () => {
     );
     // xfer from 2 to 3
     const transfer2 = simnet.callPublicFn(
-      "stacks-m2m-abtc",
+      "stacks-m2m-aibtc",
       "transfer",
       [
         Cl.uint(FAUCET_DROP),
@@ -132,7 +132,7 @@ describe("stacks-m2m-abtc", () => {
     );
     // xfer from 3 to 1
     const transfer3 = simnet.callPublicFn(
-      "stacks-m2m-abtc",
+      "stacks-m2m-aibtc",
       "transfer",
       [
         Cl.uint(FAUCET_FLOOD),
@@ -145,19 +145,19 @@ describe("stacks-m2m-abtc", () => {
 
     // get balances
     const balance1 = simnet.callReadOnlyFn(
-      "stacks-m2m-abtc",
+      "stacks-m2m-aibtc",
       "get-balance",
       [Cl.principal(address1)],
       address1
     );
     const balance2 = simnet.callReadOnlyFn(
-      "stacks-m2m-abtc",
+      "stacks-m2m-aibtc",
       "get-balance",
       [Cl.principal(address2)],
       address1
     );
     const balance3 = simnet.callReadOnlyFn(
-      "stacks-m2m-abtc",
+      "stacks-m2m-aibtc",
       "get-balance",
       [Cl.principal(address3)],
       address1

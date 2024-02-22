@@ -6,8 +6,8 @@ telemetry = true
 cache_dir = './.cache'
 requirements = []
 
-[contracts.stacks-m2m-abtc]
-path = 'src/stacks-m2m-abtc.clar'
+[contracts.stacks-m2m-aibtc]
+path = 'src/stacks-m2m-aibtc.clar'
 clarity_version = 2
 epoch = 2.4
 
