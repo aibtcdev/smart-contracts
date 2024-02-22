@@ -24,11 +24,12 @@
 (define-constant ERR_SAVING_RESOURCE_DATA (err u1003))
 (define-constant ERR_DELETING_RESOURCE_DATA (err u1004))
 (define-constant ERR_RESOURCE_NOT_FOUND (err u1005))
-(define-constant ERR_USER_ALREADY_EXISTS (err u1006))
-(define-constant ERR_SAVING_USER_DATA (err u1007))
-(define-constant ERR_USER_NOT_FOUND (err u1008))
-(define-constant ERR_INVOICE_ALREADY_PAID (err u1009))
-(define-constant ERR_SAVING_INVOICE_DATA (err u1010))
+(define-constant ERR_RESOURCE_NOT_ENABLED (err u1006))
+(define-constant ERR_USER_ALREADY_EXISTS (err u1007))
+(define-constant ERR_SAVING_USER_DATA (err u1008))
+(define-constant ERR_USER_NOT_FOUND (err u1009))
+(define-constant ERR_INVOICE_ALREADY_PAID (err u1010))
+(define-constant ERR_SAVING_INVOICE_DATA (err u1011))
 
 ;; data vars
 ;;
@@ -73,13 +74,15 @@
   uint ;; resource index
   {
     createdAt: uint,
-    ;; enabled: bool, ;; TODO: use instead of deleting resources?
-    ;; url: (optional (string-utf8 255)), ;; TODO: would need setter, health check
+    enabled: bool,
     name: (string-utf8 50),
     description: (string-utf8 255),
     price: uint,
     totalSpent: uint,
     totalUsed: uint,
+    ;; TODO: for health check, setter would be nice
+    ;; TODO: expect SIP-018 open timestamp response
+    ;; url: (optional (string-utf8 255)),
   }
 )
 
@@ -222,6 +225,7 @@
       newCount
       {
         createdAt: block-height,
+        enabled: true,
         name: name,
         description: description,
         price: price,
@@ -236,24 +240,35 @@
   )
 )
 
-;; deletes active resource that invoices can be generated against
-;; does not delete unique name, rule stays enforced to prevent
-;; any bait/switch and other weirdness while we're exploring
-;; TODO: explore toggle for enabled vs map deletion
-(define-public (delete-resource (index uint))
-  (begin
+;; toggles enabled status for resource
+;; only accessible by deployer
+(define-public (toggle-resource (index uint))
+  (let
+    (
+      (resourceData (unwrap! (get-resource index) ERR_RESOURCE_NOT_FOUND))
+    )
+    ;; verify resource > 0
+    (asserts! (> index u0) ERR_INVALID_PARAMS)
     ;; check if caller matches deployer
     (try! (is-deployer))
-    ;; check provided index is within range
-    (asserts! (and (> index u0) (<= index (var-get resourceCount))) ERR_INVALID_PARAMS)
-    ;; return and delete resource data from map
-    (ok (asserts! (map-delete ResourceData index) ERR_DELETING_RESOURCE_DATA))
+    ;; update ResourceData map
+    (map-set ResourceData
+      index
+      (merge resourceData {
+        enabled: (not (get enabled resourceData))
+      })
+    )
+    ;; print updated resource data
+    (print (get-resource index))
+    ;; return true
+    (ok true)
   )
 )
 
-;; adapter to allow deleting by name instead of index
-(define-public (delete-resource-by-name (name (string-utf8 50)))
-  (delete-resource (unwrap! (get-resource-index name) ERR_INVALID_PARAMS))
+;; toggles enabled status for resource by name
+;; only accessible by deployer
+(define-public (toggle-resource-by-name (name (string-utf8 50)))
+  (toggle-resource (unwrap! (get-resource-index name) ERR_RESOURCE_NOT_FOUND))
 )
 
 ;; allows a user to pay an invoice for a resource
@@ -268,13 +283,14 @@
     )
     ;; check that resourceIndex is > 0
     (asserts! (> resourceIndex u0) ERR_INVALID_PARAMS)
+    ;; check that resource is enabled
+    (asserts! (get enabled resourceData) ERR_RESOURCE_NOT_ENABLED)
     ;; update InvoiceData map
     (asserts! (map-insert InvoiceData
       newCount
       {
         amount: (get price resourceData),
         createdAt: block-height,
-        ;; hash: invoiceHash,
         userIndex: userIndex,
         resourceName: (get name resourceData),
         resourceIndex: resourceIndex,
@@ -308,7 +324,6 @@
     (var-set invoiceCount newCount)
     ;; print updated details
     (print {
-      ;; invoiceHash: invoiceHash,
       resourceData: (get-resource resourceIndex),
       userData: (get-user-data userIndex)
     })
