@@ -3,3 +3,4 @@
 .cache/**
 history.txt
 node_modules
+lcov.info
