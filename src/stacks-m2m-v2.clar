@@ -260,8 +260,8 @@
     )
     ;; print updated resource data
     (print (get-resource index))
-    ;; return true
-    (ok true)
+    ;; return based on set status
+    (ok (not (get enabled resourceData)))
   )
 )
 
