@@ -1,4 +1,4 @@
-;; title: stacks-m2m-abtc
+;; title: stacks-m2m-aibtc
 ;; version: 0.0.1
 ;; summary: Copy of ALEX aBTC contract for use on testnet only.
 
@@ -19,8 +19,8 @@
 ;; data vars
 ;;
 (define-data-var contract-owner principal tx-sender)
-(define-data-var token-name (string-ascii 32) "aBTC")
-(define-data-var token-symbol (string-ascii 10) "aBTC")
+(define-data-var token-name (string-ascii 32) "aiBTC")
+(define-data-var token-symbol (string-ascii 10) "aiBTC")
 (define-data-var token-uri (optional (string-utf8 256)) (some u"https://cdn.alexlab.co/metadata/token-abtc.json"))
 (define-data-var token-decimals uint u8)
 
