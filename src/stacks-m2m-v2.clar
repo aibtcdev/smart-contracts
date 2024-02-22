@@ -329,7 +329,6 @@
     })
     ;; make transfer
     (if (is-some memo)
-      ;; TODO: check for guards on price setting
       ;; MAINNET
       ;; xBTC SP3K8BC0PPEVCV7NZ6QSRWPQ2JE9E5B6N3PA0KBR9.token-wbtc
       ;; aBTC SP3K8BC0PPEVCV7NZ6QSRWPQ2JE9E5B6N3PA0KBR9.token-abtc
