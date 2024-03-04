@@ -1,7 +1,5 @@
 [project]
-name = 'stacks-m2m-contracts'
-description = 'Machine-payable transactions on Stacks.'
-authors = []
+name = 'aibtcdev-smart-contracts'
 telemetry = true
 cache_dir = './.cache'
 requirements = []
