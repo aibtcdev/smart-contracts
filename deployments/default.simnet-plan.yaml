@@ -50,23 +50,18 @@ plan:
     - id: 0
       transactions:
         - emulated-contract-publish:
-            contract-name: stacks-m2m-aibtc
+            contract-name: aibtcdev-aibtc
             emulated-sender: ST1PQHQKV0RJXZFY1DGX8MNSNYVE3VGZJSRTPGZGM
-            path: src/stacks-m2m-aibtc.clar
+            path: src/aibtcdev-aibtc.clar
             clarity-version: 2
         - emulated-contract-publish:
-            contract-name: stacks-m2m-trait-v1
+            contract-name: aibtcdev-trait-v1
             emulated-sender: ST1PQHQKV0RJXZFY1DGX8MNSNYVE3VGZJSRTPGZGM
-            path: src/stacks-m2m-trait-v1.clar
+            path: src/aibtcdev-trait-v1.clar
             clarity-version: 2
         - emulated-contract-publish:
-            contract-name: stacks-m2m-v1
+            contract-name: aibtcdev-resources-v1
             emulated-sender: ST1PQHQKV0RJXZFY1DGX8MNSNYVE3VGZJSRTPGZGM
-            path: src/stacks-m2m-v1.clar
-            clarity-version: 2
-        - emulated-contract-publish:
-            contract-name: stacks-m2m-v2
-            emulated-sender: ST1PQHQKV0RJXZFY1DGX8MNSNYVE3VGZJSRTPGZGM
-            path: src/stacks-m2m-v2.clar
+            path: src/aibtcdev-resources-v1.clar
             clarity-version: 2
       epoch: "2.4"

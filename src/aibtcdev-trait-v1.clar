@@ -1,4 +1,4 @@
-(define-trait stacks-m2m-trait-v1
+(define-trait aibtcdev-trait-v1
   (
     (set-payment-address (principal principal) (response bool uint))
     (add-resource ((string-utf8 50) (string-utf8 255) uint) (response uint uint))
