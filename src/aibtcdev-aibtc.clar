@@ -1,4 +1,4 @@
-;; title: stacks-m2m-aibtc
+;; title: aibtcdev-aibtc
 ;; version: 0.0.1
 ;; summary: Copy of ALEX aBTC contract for use on testnet only.
 

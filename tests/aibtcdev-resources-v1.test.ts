@@ -35,7 +35,7 @@ describe("Adding a resource", () => {
     const address1 = accounts.get("wallet_1")!;
     // ACT
     const response = simnet.callPublicFn(
-      "stacks-m2m-v2",
+      "aibtcdev-resources-v1",
       "add-resource",
       testResource,
       address1
@@ -50,7 +50,7 @@ describe("Adding a resource", () => {
     const deployer = accounts.get("deployer")!;
     // ACT
     const response = simnet.callPublicFn(
-      "stacks-m2m-v2",
+      "aibtcdev-resources-v1",
       "add-resource",
       createResource("", "description", defaultPrice),
       deployer
@@ -65,7 +65,7 @@ describe("Adding a resource", () => {
     const deployer = accounts.get("deployer")!;
     // ACT
     const response = simnet.callPublicFn(
-      "stacks-m2m-v2",
+      "aibtcdev-resources-v1",
       "add-resource",
       createResource("name", "", defaultPrice),
       deployer
@@ -80,7 +80,7 @@ describe("Adding a resource", () => {
     const deployer = accounts.get("deployer")!;
     // ACT
     const response = simnet.callPublicFn(
-      "stacks-m2m-v2",
+      "aibtcdev-resources-v1",
       "add-resource",
       createResource("name", "description", 0),
       deployer
@@ -95,13 +95,13 @@ describe("Adding a resource", () => {
     const expectedCount = 1;
     // ACT
     const firstResponse = simnet.callPublicFn(
-      "stacks-m2m-v2",
+      "aibtcdev-resources-v1",
       "add-resource",
       testResource,
       deployer
     );
     const secondResponse = simnet.callPublicFn(
-      "stacks-m2m-v2",
+      "aibtcdev-resources-v1",
       "add-resource",
       testResource,
       deployer
@@ -120,19 +120,19 @@ describe("Adding a resource", () => {
     const expectedCount = 1;
     // ACT
     const oldCount = simnet.callReadOnlyFn(
-      "stacks-m2m-v2",
+      "aibtcdev-resources-v1",
       "get-total-resources",
       [],
       deployer
     );
     const response = simnet.callPublicFn(
-      "stacks-m2m-v2",
+      "aibtcdev-resources-v1",
       "add-resource",
       testResource,
       deployer
     );
     const newCount = simnet.callReadOnlyFn(
-      "stacks-m2m-v2",
+      "aibtcdev-resources-v1",
       "get-total-resources",
       [],
       deployer
@@ -153,7 +153,7 @@ describe("Toggling a Resource Status", () => {
     // ACT
     // create resource
     simnet.callPublicFn(
-      "stacks-m2m-v2",
+      "aibtcdev-resources-v1",
       "add-resource",
       testResource,
       deployer
@@ -162,7 +162,7 @@ describe("Toggling a Resource Status", () => {
     simnet.mineEmptyBlocks(5000);
     // toggle resource
     const response = simnet.callPublicFn(
-      "stacks-m2m-v2",
+      "aibtcdev-resources-v1",
       "toggle-resource",
       [Cl.uint(1)],
       address1
@@ -177,7 +177,7 @@ describe("Toggling a Resource Status", () => {
     const deployer = accounts.get("deployer")!;
     // ACT
     const response = simnet.callPublicFn(
-      "stacks-m2m-v2",
+      "aibtcdev-resources-v1",
       "toggle-resource",
       [Cl.uint(10)],
       deployer
@@ -193,7 +193,7 @@ describe("Toggling a Resource Status", () => {
     // ACT
     // create resource
     simnet.callPublicFn(
-      "stacks-m2m-v2",
+      "aibtcdev-resources-v1",
       "add-resource",
       testResource,
       deployer
@@ -202,14 +202,14 @@ describe("Toggling a Resource Status", () => {
     simnet.mineEmptyBlocks(5000);
     // toggle resource
     const response = simnet.callPublicFn(
-      "stacks-m2m-v2",
+      "aibtcdev-resources-v1",
       "toggle-resource",
       [Cl.uint(1)],
       deployer
     );
     // get resource
     const resourceResponse = simnet.callReadOnlyFn(
-      "stacks-m2m-v2",
+      "aibtcdev-resources-v1",
       "get-resource",
       [Cl.uint(1)],
       deployer
@@ -218,14 +218,14 @@ describe("Toggling a Resource Status", () => {
     simnet.mineEmptyBlocks(5000);
     // toggle resource
     const response2 = simnet.callPublicFn(
-      "stacks-m2m-v2",
+      "aibtcdev-resources-v1",
       "toggle-resource",
       [Cl.uint(1)],
       deployer
     );
     // get resource
     const resourceResponse2 = simnet.callReadOnlyFn(
-      "stacks-m2m-v2",
+      "aibtcdev-resources-v1",
       "get-resource",
       [Cl.uint(1)],
       deployer
@@ -266,7 +266,7 @@ describe("Toggling a Resource Status", () => {
     // ACT
     // create resource
     simnet.callPublicFn(
-      "stacks-m2m-v2",
+      "aibtcdev-resources-v1",
       "add-resource",
       testResource,
       deployer
@@ -275,7 +275,7 @@ describe("Toggling a Resource Status", () => {
     simnet.mineEmptyBlocks(5000);
     // toggle resource
     const response = simnet.callPublicFn(
-      "stacks-m2m-v2",
+      "aibtcdev-resources-v1",
       "toggle-resource-by-name",
       [Cl.stringUtf8("Bitcoin Face")],
       address1
@@ -290,7 +290,7 @@ describe("Toggling a Resource Status", () => {
     const deployer = accounts.get("deployer")!;
     // ACT
     const response = simnet.callPublicFn(
-      "stacks-m2m-v2",
+      "aibtcdev-resources-v1",
       "toggle-resource-by-name",
       [Cl.stringUtf8("Nothingburger")],
       deployer
@@ -306,7 +306,7 @@ describe("Toggling a Resource Status", () => {
     // ACT
     // create resource
     simnet.callPublicFn(
-      "stacks-m2m-v2",
+      "aibtcdev-resources-v1",
       "add-resource",
       testResource,
       deployer
@@ -315,14 +315,14 @@ describe("Toggling a Resource Status", () => {
     simnet.mineEmptyBlocks(5000);
     // toggle resource
     const response = simnet.callPublicFn(
-      "stacks-m2m-v2",
+      "aibtcdev-resources-v1",
       "toggle-resource-by-name",
       [Cl.stringUtf8("Bitcoin Face")],
       deployer
     );
     // get resource
     const resourceResponse = simnet.callReadOnlyFn(
-      "stacks-m2m-v2",
+      "aibtcdev-resources-v1",
       "get-resource",
       [Cl.uint(1)],
       deployer
@@ -331,14 +331,14 @@ describe("Toggling a Resource Status", () => {
     simnet.mineEmptyBlocks(5000);
     // toggle resource
     const response2 = simnet.callPublicFn(
-      "stacks-m2m-v2",
+      "aibtcdev-resources-v1",
       "toggle-resource-by-name",
       [Cl.stringUtf8("Bitcoin Face")],
       deployer
     );
     // get resource
     const resourceResponse2 = simnet.callReadOnlyFn(
-      "stacks-m2m-v2",
+      "aibtcdev-resources-v1",
       "get-resource",
       [Cl.uint(1)],
       deployer
@@ -380,7 +380,7 @@ describe("Setting a Payment Address", () => {
     // ACT
     // get current payment address
     const currentPaymentAddressResponse = simnet.callReadOnlyFn(
-      "stacks-m2m-v2",
+      "aibtcdev-resources-v1",
       "get-payment-address",
       [],
       address1
@@ -391,7 +391,7 @@ describe("Setting a Payment Address", () => {
     );
     // set payment address
     const response = simnet.callPublicFn(
-      "stacks-m2m-v2",
+      "aibtcdev-resources-v1",
       "set-payment-address",
       [
         Cl.standardPrincipal(currentPaymentAddress.value),
@@ -411,7 +411,7 @@ describe("Setting a Payment Address", () => {
     // ACT
     // set payment address
     const response = simnet.callPublicFn(
-      "stacks-m2m-v2",
+      "aibtcdev-resources-v1",
       "set-payment-address",
       [Cl.standardPrincipal(address1), Cl.standardPrincipal(address1)],
       deployer
@@ -429,7 +429,7 @@ describe("Setting a Payment Address", () => {
     // ACT
     // get current payment address
     const currentPaymentAddressResponse = simnet.callReadOnlyFn(
-      "stacks-m2m-v2",
+      "aibtcdev-resources-v1",
       "get-payment-address",
       [],
       address1
@@ -440,7 +440,7 @@ describe("Setting a Payment Address", () => {
     );
     // set payment address
     const response = simnet.callPublicFn(
-      "stacks-m2m-v2",
+      "aibtcdev-resources-v1",
       "set-payment-address",
       [
         Cl.standardPrincipal(currentPaymentAddress.value),
@@ -462,7 +462,7 @@ describe("Setting a Payment Address", () => {
     // ACT
     // get current payment address
     const currentPaymentAddressResponse = simnet.callReadOnlyFn(
-      "stacks-m2m-v2",
+      "aibtcdev-resources-v1",
       "get-payment-address",
       [],
       address1
@@ -473,7 +473,7 @@ describe("Setting a Payment Address", () => {
     );
     // set payment address
     const response = simnet.callPublicFn(
-      "stacks-m2m-v2",
+      "aibtcdev-resources-v1",
       "set-payment-address",
       [
         Cl.standardPrincipal(currentPaymentAddress.value),
@@ -485,7 +485,7 @@ describe("Setting a Payment Address", () => {
     simnet.mineEmptyBlocks(5000);
     // get current payment address again
     const updatedPaymentAddressResponse = simnet.callReadOnlyFn(
-      "stacks-m2m-v2",
+      "aibtcdev-resources-v1",
       "get-payment-address",
       [],
       address1
@@ -496,7 +496,7 @@ describe("Setting a Payment Address", () => {
     );
     // set payment address again
     const secondResponse = simnet.callPublicFn(
-      "stacks-m2m-v2",
+      "aibtcdev-resources-v1",
       "set-payment-address",
       [Cl.standardPrincipal(address1), Cl.standardPrincipal(address2)],
       address1
@@ -515,7 +515,7 @@ describe("Paying an Invoice", () => {
     const address1 = accounts.get("wallet_1")!;
     // ACT
     const response = simnet.callPublicFn(
-      "stacks-m2m-v2",
+      "aibtcdev-resources-v1",
       "pay-invoice",
       [
         Cl.uint(0), // resource index
@@ -535,21 +535,21 @@ describe("Paying an Invoice", () => {
     // ACT
     // add a resource
     simnet.callPublicFn(
-      "stacks-m2m-v2",
+      "aibtcdev-resources-v1",
       "add-resource",
       testResource,
       deployer
     );
     // toggle resource
     simnet.callPublicFn(
-      "stacks-m2m-v2",
+      "aibtcdev-resources-v1",
       "toggle-resource",
       [Cl.uint(1)],
       deployer
     );
     // pay invoice for resource
     const response = simnet.callPublicFn(
-      "stacks-m2m-v2",
+      "aibtcdev-resources-v1",
       "pay-invoice",
       [
         Cl.uint(1), // resource index
@@ -575,21 +575,21 @@ describe("Paying an Invoice", () => {
     // ACT
     // mint aiBTC to pay for resources
     simnet.callPublicFn(
-      "stacks-m2m-aibtc",
+      "aibtcdev-aibtc",
       "faucet-flood",
       [Cl.principal(address1)],
       address1
     );
     // add a resource
     simnet.callPublicFn(
-      "stacks-m2m-v2",
+      "aibtcdev-resources-v1",
       "add-resource",
       testResource,
       deployer
     );
     // pay invoice for resource
     const response = simnet.callPublicFn(
-      "stacks-m2m-v2",
+      "aibtcdev-resources-v1",
       "pay-invoice",
       [
         Cl.uint(1), // resource index
@@ -611,21 +611,21 @@ describe("Paying an Invoice", () => {
     // ACT
     // mint aiBTC to pay for resources
     simnet.callPublicFn(
-      "stacks-m2m-aibtc",
+      "aibtcdev-aibtc",
       "faucet-flood",
       [Cl.principal(address1)],
       address1
     );
     // add a resource
     simnet.callPublicFn(
-      "stacks-m2m-v2",
+      "aibtcdev-resources-v1",
       "add-resource",
       testResource,
       deployer
     );
     // pay invoice for resource
     const response = simnet.callPublicFn(
-      "stacks-m2m-v2",
+      "aibtcdev-resources-v1",
       "pay-invoice",
       [
         Cl.uint(1), // resource index
@@ -649,28 +649,28 @@ describe("Paying an Invoice", () => {
     // ACT
     // mint aiBTC to pay for resources
     simnet.callPublicFn(
-      "stacks-m2m-aibtc",
+      "aibtcdev-aibtc",
       "faucet-flood",
       [Cl.principal(address1)],
       address1
     );
     // mint aiBTC to pay for resources
     simnet.callPublicFn(
-      "stacks-m2m-aibtc",
+      "aibtcdev-aibtc",
       "faucet-flood",
       [Cl.principal(address2)],
       address2
     );
     // mint aiBTC to pay for resources
     simnet.callPublicFn(
-      "stacks-m2m-aibtc",
+      "aibtcdev-aibtc",
       "faucet-flood",
       [Cl.principal(address3)],
       address3
     );
     // add a resource
     simnet.callPublicFn(
-      "stacks-m2m-v2",
+      "aibtcdev-resources-v1",
       "add-resource",
       testResource,
       deployer
@@ -678,7 +678,7 @@ describe("Paying an Invoice", () => {
     // pay invoice once for 3 users
     const blockResponses = [
       simnet.callPublicFn(
-        "stacks-m2m-v2",
+        "aibtcdev-resources-v1",
         "pay-invoice",
         [
           Cl.uint(1), // resource index
@@ -687,7 +687,7 @@ describe("Paying an Invoice", () => {
         address1
       ),
       simnet.callPublicFn(
-        "stacks-m2m-v2",
+        "aibtcdev-resources-v1",
         "pay-invoice",
         [
           Cl.uint(1), // resource index
@@ -696,7 +696,7 @@ describe("Paying an Invoice", () => {
         address2
       ),
       simnet.callPublicFn(
-        "stacks-m2m-v2",
+        "aibtcdev-resources-v1",
         "pay-invoice",
         [
           Cl.uint(1), // resource index
@@ -710,7 +710,7 @@ describe("Paying an Invoice", () => {
     // pay invoice again for 3 users
     blockResponses.push(
       simnet.callPublicFn(
-        "stacks-m2m-v2",
+        "aibtcdev-resources-v1",
         "pay-invoice",
         [
           Cl.uint(1), // resource index
@@ -719,7 +719,7 @@ describe("Paying an Invoice", () => {
         address1
       ),
       simnet.callPublicFn(
-        "stacks-m2m-v2",
+        "aibtcdev-resources-v1",
         "pay-invoice",
         [
           Cl.uint(1), // resource index
@@ -728,7 +728,7 @@ describe("Paying an Invoice", () => {
         address2
       ),
       simnet.callPublicFn(
-        "stacks-m2m-v2",
+        "aibtcdev-resources-v1",
         "pay-invoice",
         [
           Cl.uint(1), // resource index
@@ -753,27 +753,27 @@ describe("Paying an Invoice", () => {
     // ACT
     // mint aiBTC to pay for resources
     simnet.callPublicFn(
-      "stacks-m2m-aibtc",
+      "aibtcdev-aibtc",
       "faucet-flood",
       [Cl.principal(address1)],
       address1
     );
     simnet.callPublicFn(
-      "stacks-m2m-aibtc",
+      "aibtcdev-aibtc",
       "faucet-flood",
       [Cl.principal(address2)],
       address2
     );
     // add a resource
     simnet.callPublicFn(
-      "stacks-m2m-v2",
+      "aibtcdev-resources-v1",
       "add-resource",
       testResource,
       deployer
     );
     // pay invoice for resource
     simnet.callPublicFn(
-      "stacks-m2m-v2",
+      "aibtcdev-resources-v1",
       "pay-invoice",
       [
         Cl.uint(1), // resource index
@@ -785,7 +785,7 @@ describe("Paying an Invoice", () => {
     simnet.mineEmptyBlocks(5000);
     // pay invoice again for resource
     simnet.callPublicFn(
-      "stacks-m2m-v2",
+      "aibtcdev-resources-v1",
       "pay-invoice",
       [
         Cl.uint(1), // resource index
@@ -797,20 +797,20 @@ describe("Paying an Invoice", () => {
     simnet.mineEmptyBlocks(5000);
     // get resource
     const resourceResponse = simnet.callReadOnlyFn(
-      "stacks-m2m-v2",
+      "aibtcdev-resources-v1",
       "get-resource",
       [Cl.uint(1)],
       deployer
     );
     // get user
     const userResponseOne = simnet.callReadOnlyFn(
-      "stacks-m2m-v2",
+      "aibtcdev-resources-v1",
       "get-user-data-by-address",
       [Cl.standardPrincipal(address1)],
       deployer
     );
     const userResponseTwo = simnet.callReadOnlyFn(
-      "stacks-m2m-v2",
+      "aibtcdev-resources-v1",
       "get-user-data-by-address",
       [Cl.standardPrincipal(address2)],
       deployer

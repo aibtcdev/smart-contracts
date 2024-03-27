@@ -1,14 +1,11 @@
 
-;; title: stacks-m2m-v1
-;; version: 0.0.1
+;; title: aibtcdev-resources-v1
+;; version: 0.0.2
 ;; summary: HTTP 402 payments powered by Stacks
 
 ;; traits
 ;;
-
-;; getting errors for add-resource, pay-invoice, and pay-invoice-by-name
-;; maybe next time!
-;; (impl-trait .stacks-m2m-trait-v1.stacks-m2m-trait-v1)
+(impl-trait .aibtcdev-trait-v1.aibtcdev-trait-v1)
 
 ;; constants
 ;;
@@ -17,6 +14,9 @@
 (define-constant DEPLOYER contract-caller)
 (define-constant SELF (as-contract tx-sender))
 
+;; math helpers (credit: ALEX)
+(define-constant ONE_8 (pow u10 u8))
+
 ;; errors
 (define-constant ERR_UNAUTHORIZED (err u1000))
 (define-constant ERR_INVALID_PARAMS (err u1001))
@@ -24,13 +24,12 @@
 (define-constant ERR_SAVING_RESOURCE_DATA (err u1003))
 (define-constant ERR_DELETING_RESOURCE_DATA (err u1004))
 (define-constant ERR_RESOURCE_NOT_FOUND (err u1005))
-(define-constant ERR_USER_ALREADY_EXISTS (err u1006))
-(define-constant ERR_SAVING_USER_DATA (err u1007))
-(define-constant ERR_USER_NOT_FOUND (err u1008))
-(define-constant ERR_INVOICE_ALREADY_PAID (err u1009))
-(define-constant ERR_SAVING_INVOICE_DATA (err u1010))
-(define-constant ERR_INVOICE_HASH_NOT_FOUND (err u1011))
-(define-constant ERR_SETTING_MEMO_ON_TRANSFER (err u1012))
+(define-constant ERR_RESOURCE_NOT_ENABLED (err u1006))
+(define-constant ERR_USER_ALREADY_EXISTS (err u1007))
+(define-constant ERR_SAVING_USER_DATA (err u1008))
+(define-constant ERR_USER_NOT_FOUND (err u1009))
+(define-constant ERR_INVOICE_ALREADY_PAID (err u1010))
+(define-constant ERR_SAVING_INVOICE_DATA (err u1011))
 
 ;; data vars
 ;;
@@ -75,18 +74,28 @@
   uint ;; resource index
   {
     createdAt: uint,
+    enabled: bool,
     name: (string-utf8 50),
     description: (string-utf8 255),
     price: uint,
     totalSpent: uint,
     totalUsed: uint,
+    ;; TODO: for health check, setter would be nice
+    ;; TODO: expect SIP-018 open timestamp response
+    ;; url: (optional (string-utf8 255)),
   }
 )
 
-;; tracks invoice indexes by invoice ID
-(define-map InvoiceIndexes
-  (buff 32) ;; invoice SHA256 hash
-  uint      ;; invoice index
+;; tracks invoices paid by users requesting access to a resource
+(define-map InvoiceData
+  uint ;; invoice count
+  {
+    amount: uint,
+    createdAt: uint,
+    userIndex: uint,
+    resourceName: (string-utf8 50),
+    resourceIndex: uint,
+  }
 )
 
 ;; tracks last payment from user for a resource
@@ -95,21 +104,9 @@
     userIndex: uint,
     resourceIndex: uint,
   }
-  uint ;; invoice index
+  uint ;; invoice count
 )
 
-;; tracks invoices paid by users requesting access to a resource
-(define-map InvoiceData
-  uint ;; invoice index
-  {
-    amount: uint,
-    createdAt: uint,
-    hash: (buff 32),
-    userIndex: uint,
-    resourceName: (string-utf8 50),
-    resourceIndex: uint,
-  }
-)
 
 ;; read only functions
 ;;
@@ -159,19 +156,9 @@
   (var-get invoiceCount)
 )
 
-;; returns invoice index for hash if known
-(define-read-only (get-invoice-index (hash (buff 32)))
-  (map-get? InvoiceIndexes hash)
-)
-
 ;; returns invoice data by invoice index if known
 (define-read-only (get-invoice (index uint))
   (map-get? InvoiceData index)
-)
-
-;; returns invoice data by invoice hash if known
-(define-read-only (get-invoice-by-hash (hash (buff 32)))
-  (get-invoice (unwrap! (get-invoice-index hash) none))
 )
 
 ;; returns invoice index by user index and resource index if known
@@ -195,38 +182,6 @@
 ;; returns payment address
 (define-read-only (get-payment-address)
   (some (var-get paymentAddress))
-)
-
-;; returns a unique but deterministic invoice hash based on:
-;; - the bitcoin block and stacks block values (time)
-;; - the user address requesting the invoice (who)
-;; - the resource the user is requesting (what)
-;; - the contract name (where)
-(define-read-only (get-invoice-hash (user principal) (resourceIndex uint) (blockHeight uint))
-  (let
-    (
-      ;; 32 byte bitcoin hash / stacks hash from block height
-      (btcBlockHash (unwrap! (get-block-info? burnchain-header-hash blockHeight) none))
-      (stxBlockHash (unwrap! (get-block-info? id-header-hash blockHeight) none))
-      ;; concatenate bitcoin + stacks hash into single buff
-      (combinedBlockHash (concat btcBlockHash stxBlockHash))
-      ;; 20 byte pubkey from address
-      (userDestruct (unwrap! (principal-destruct? user) none))
-      (userPubkey (get hash-bytes userDestruct))
-      ;; 32 byte resource hash, combo of resource name + contract name
-      (resourceData (unwrap! (get-resource resourceIndex) none))
-      (resourceName (unwrap! (to-consensus-buff? (get name resourceData)) none))
-      (contractName (unwrap! (to-consensus-buff? SELF) none))
-      (resourceInfo (concat resourceName contractName))
-      (resourceHash (sha256 resourceInfo))
-      ;; concatenate user pubkey + resource hash
-      (combinedUserHash (concat userPubkey resourceHash))
-      ;; concatenate both combined hashes for a single buff
-      (allCombinedHashes (concat combinedBlockHash combinedUserHash))
-    )
-    ;; return combined hash
-    (some (sha256 allCombinedHashes))
-  )
 )
 
 ;; public functions
@@ -270,6 +225,7 @@
       newCount
       {
         createdAt: block-height,
+        enabled: true,
         name: name,
         description: description,
         price: price,
@@ -284,23 +240,35 @@
   )
 )
 
-;; deletes active resource that invoices can be generated against
-;; does not delete unique name, rule stays enforced to prevent
-;; any bait/switch and other weirdness while we're exploring
-(define-public (delete-resource (index uint))
-  (begin
+;; toggles enabled status for resource
+;; only accessible by deployer
+(define-public (toggle-resource (index uint))
+  (let
+    (
+      (resourceData (unwrap! (get-resource index) ERR_RESOURCE_NOT_FOUND))
+    )
+    ;; verify resource > 0
+    (asserts! (> index u0) ERR_INVALID_PARAMS)
     ;; check if caller matches deployer
     (try! (is-deployer))
-    ;; check provided index is within range
-    (asserts! (and (> index u0) (<= index (var-get resourceCount))) ERR_INVALID_PARAMS)
-    ;; return and delete resource data from map
-    (ok (asserts! (map-delete ResourceData index) ERR_DELETING_RESOURCE_DATA))
+    ;; update ResourceData map
+    (map-set ResourceData
+      index
+      (merge resourceData {
+        enabled: (not (get enabled resourceData))
+      })
+    )
+    ;; print updated resource data
+    (print (get-resource index))
+    ;; return based on set status
+    (ok (not (get enabled resourceData)))
   )
 )
 
-;; adapter to allow deleting by name instead of index
-(define-public (delete-resource-by-name (name (string-utf8 50)))
-  (delete-resource (unwrap! (get-resource-index name) ERR_INVALID_PARAMS))
+;; toggles enabled status for resource by name
+;; only accessible by deployer
+(define-public (toggle-resource-by-name (name (string-utf8 50)))
+  (toggle-resource (unwrap! (get-resource-index name) ERR_RESOURCE_NOT_FOUND))
 )
 
 ;; allows a user to pay an invoice for a resource
@@ -312,17 +280,17 @@
       (resourceData (unwrap! (get-resource resourceIndex) ERR_RESOURCE_NOT_FOUND))
       (userIndex (unwrap! (get-or-create-user contract-caller) ERR_USER_NOT_FOUND))
       (userData (unwrap! (get-user-data userIndex) ERR_USER_NOT_FOUND))
-      (invoiceHash (unwrap! (get-invoice-hash contract-caller resourceIndex lastAnchoredBlock) ERR_INVOICE_HASH_NOT_FOUND))
     )
-    ;; update InvoiceIndexes map, check invoice hash is unique
-    (asserts! (map-insert InvoiceIndexes invoiceHash newCount) ERR_INVOICE_ALREADY_PAID)
+    ;; check that resourceIndex is > 0
+    (asserts! (> resourceIndex u0) ERR_INVALID_PARAMS)
+    ;; check that resource is enabled
+    (asserts! (get enabled resourceData) ERR_RESOURCE_NOT_ENABLED)
     ;; update InvoiceData map
     (asserts! (map-insert InvoiceData
       newCount
       {
         amount: (get price resourceData),
         createdAt: block-height,
-        hash: invoiceHash,
         userIndex: userIndex,
         resourceName: (get name resourceData),
         resourceIndex: resourceIndex,
@@ -356,14 +324,16 @@
     (var-set invoiceCount newCount)
     ;; print updated details
     (print {
-      invoiceHash: invoiceHash,
       resourceData: (get-resource resourceIndex),
       userData: (get-user-data userIndex)
     })
     ;; make transfer
     (if (is-some memo)
-      (try! (stx-transfer-memo? (get price resourceData) contract-caller (var-get paymentAddress) (unwrap! memo ERR_SETTING_MEMO_ON_TRANSFER)))
-      (try! (stx-transfer? (get price resourceData) contract-caller (var-get paymentAddress)))
+      ;; MAINNET
+      ;; xBTC SP3K8BC0PPEVCV7NZ6QSRWPQ2JE9E5B6N3PA0KBR9.token-wbtc
+      ;; aBTC SP3K8BC0PPEVCV7NZ6QSRWPQ2JE9E5B6N3PA0KBR9.token-abtc
+      (try! (contract-call? .aibtcdev-aibtc transfer (get price resourceData) contract-caller (var-get paymentAddress) memo))
+      (try! (contract-call? .aibtcdev-aibtc transfer (get price resourceData) contract-caller (var-get paymentAddress) none))
     )
     ;; return new count
     (ok newCount)
@@ -390,7 +360,7 @@
         (newCount (+ (get-total-users) u1))
       )
       ;; update UserIndexes map, check address is unique
-      (asserts! (map-insert UserIndexes address newCount) ERR_SAVING_USER_DATA)
+      (asserts! (map-insert UserIndexes address newCount) ERR_USER_ALREADY_EXISTS)
       ;; update UserData map
       (asserts! (map-insert UserData 
         newCount
