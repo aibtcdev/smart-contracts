@@ -55,9 +55,9 @@ plan:
             path: src/aibtcdev-aibtc.clar
             clarity-version: 2
         - emulated-contract-publish:
-            contract-name: aibtcdev-trait-v1
+            contract-name: aibtcdev-traits-v1
             emulated-sender: ST1PQHQKV0RJXZFY1DGX8MNSNYVE3VGZJSRTPGZGM
-            path: src/aibtcdev-trait-v1.clar
+            path: src/aibtcdev-traits-v1.clar
             clarity-version: 2
         - emulated-contract-publish:
             contract-name: aibtcdev-resources-v1

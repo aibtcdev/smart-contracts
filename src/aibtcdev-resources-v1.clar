@@ -5,7 +5,8 @@
 
 ;; traits
 ;;
-(impl-trait .aibtcdev-trait-v1.aibtcdev-trait-v1)
+(impl-trait .aibtcdev-traits-v1.aibtcdev-resource-mgmt-v1)
+(impl-trait .aibtcdev-traits-v1.aibtcdev-invoice-v1)
 
 ;; constants
 ;;

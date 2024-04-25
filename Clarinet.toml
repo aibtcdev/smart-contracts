@@ -9,8 +9,8 @@ path = 'src/aibtcdev-aibtc.clar'
 clarity_version = 2
 epoch = 2.4
 
-[contracts.aibtcdev-trait-v1]
-path = 'src/aibtcdev-trait-v1.clar'
+[contracts.aibtcdev-traits-v1]
+path = 'src/aibtcdev-traits-v1.clar'
 clarity_version = 2
 epoch = 2.4
 
