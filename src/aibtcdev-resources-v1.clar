@@ -190,6 +190,11 @@
   (some (var-get paymentAddress))
 )
 
+;; returns total revenue
+(define-read-only (get-total-revenue)
+  (var-get totalRevenue)
+)
+
 ;; public functions
 ;;
 
@@ -355,6 +360,8 @@
         totalUsed: (+ (get totalUsed resourceData) u1)
       })
     )
+    ;; update total revenue
+    (var-set totalRevenue (+ (var-get totalRevenue) (get price resourceData)))
     ;; increment counter
     (var-set invoiceCount newCount)
     ;; print details
@@ -368,6 +375,7 @@
         userData: (unwrap! (get-user-data userIndex) ERR_USER_NOT_FOUND),
         resourceIndex: resourceIndex,
         resourceData: (unwrap! (get-resource resourceIndex) ERR_RESOURCE_NOT_FOUND),
+        totalRevenue: (var-get totalRevenue),
         txSender: tx-sender,
         contractCaller: contract-caller
       }
