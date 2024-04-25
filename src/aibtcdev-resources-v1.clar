@@ -31,6 +31,8 @@
 (define-constant ERR_USER_NOT_FOUND (err u1009))
 (define-constant ERR_INVOICE_ALREADY_PAID (err u1010))
 (define-constant ERR_SAVING_INVOICE_DATA (err u1011))
+(define-constant ERR_INVOICE_NOT_FOUND (err u1012))
+(define-constant ERR_RECENT_PAYMENT_NOT_FOUND (err u1013))
 
 ;; data vars
 ;;
@@ -39,6 +41,9 @@
 (define-data-var userCount uint u0)
 (define-data-var resourceCount uint u0)
 (define-data-var invoiceCount uint u0)
+
+;; tracking overall contract revenue
+(define-data-var totalRevenue uint u0)
 
 ;; payout address, deployer can set
 (define-data-var paymentAddress principal DEPLOYER)
@@ -201,6 +206,16 @@
       (is-eq contract-caller oldAddress)
       (try! (is-deployer))
     ) ERR_UNAUTHORIZED)
+    ;; print details
+    (print {
+      notification: "set-payment-address",
+      payload: {
+        oldAddress: oldAddress,
+        newAddress: newAddress,
+        txSender: tx-sender,
+        contractCaller: contract-caller,
+      }
+    })
     ;; set new payment address
     (ok (var-set paymentAddress newAddress))
   )
@@ -236,6 +251,16 @@
     ) ERR_SAVING_RESOURCE_DATA)
     ;; increment resourceCount
     (var-set resourceCount newCount)
+    ;; print details
+    (print {
+      notification: "add-resource",
+      payload: {
+        resourceIndex: newCount,
+        resourceData: (unwrap! (get-resource newCount) ERR_RESOURCE_NOT_FOUND),
+        txSender: tx-sender,
+        contractCaller: contract-caller
+      }
+    })
     ;; return new count
     (ok newCount)
   )
@@ -247,6 +272,7 @@
   (let
     (
       (resourceData (unwrap! (get-resource index) ERR_RESOURCE_NOT_FOUND))
+      (newStatus (not (get enabled resourceData)))
     )
     ;; verify resource > 0
     (asserts! (> index u0) ERR_INVALID_PARAMS)
@@ -256,13 +282,21 @@
     (map-set ResourceData
       index
       (merge resourceData {
-        enabled: (not (get enabled resourceData))
+        enabled: newStatus
       })
     )
-    ;; print updated resource data
-    (print (get-resource index))
+    ;; print details
+    (print {
+      notification: "toggle-resource",
+      payload: {
+        resourceIndex: index,
+        resourceData: (unwrap! (get-resource index) ERR_RESOURCE_NOT_FOUND),
+        txSender: tx-sender,
+        contractCaller: contract-caller
+      }
+    })
     ;; return based on set status
-    (ok (not (get enabled resourceData)))
+    (ok newStatus)
   )
 )
 
@@ -323,10 +357,20 @@
     )
     ;; increment counter
     (var-set invoiceCount newCount)
-    ;; print updated details
+    ;; print details
     (print {
-      resourceData: (get-resource resourceIndex),
-      userData: (get-user-data userIndex)
+      notification: "pay-invoice",
+      payload: {
+        invoiceIndex: newCount,
+        invoiceData: (unwrap! (get-invoice newCount) ERR_INVOICE_NOT_FOUND),
+        recentPayment: (unwrap! (get-recent-payment resourceIndex userIndex) ERR_RECENT_PAYMENT_NOT_FOUND),
+        userIndex: userIndex,
+        userData: (unwrap! (get-user-data userIndex) ERR_USER_NOT_FOUND),
+        resourceIndex: resourceIndex,
+        resourceData: (unwrap! (get-resource resourceIndex) ERR_RESOURCE_NOT_FOUND),
+        txSender: tx-sender,
+        contractCaller: contract-caller
+      }
     })
     ;; make transfer
     (if (is-some memo)
