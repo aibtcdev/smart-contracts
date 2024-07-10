@@ -19,6 +19,11 @@ path = 'src/aibtcdev-resources-v1.clar'
 clarity_version = 2
 epoch = 2.4
 
+[contracts.aibtcdev-vault]
+path = 'src/aibtcdev-vault.clar'
+clarity_version = 2
+epoch = 2.4
+
 [repl.analysis]
 passes = ['check_checker']
 
