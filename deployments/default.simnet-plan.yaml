@@ -72,4 +72,9 @@ plan:
             emulated-sender: ST1PQHQKV0RJXZFY1DGX8MNSNYVE3VGZJSRTPGZGM
             path: contracts/aibtcdev-bank-account.clar
             clarity-version: 2
+        - emulated-contract-publish:
+            contract-name: test-proxy
+            emulated-sender: ST1PQHQKV0RJXZFY1DGX8MNSNYVE3VGZJSRTPGZGM
+            path: contracts/test-proxy.clar
+            clarity-version: 2
       epoch: "2.5"

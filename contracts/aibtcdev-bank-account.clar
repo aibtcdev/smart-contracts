@@ -57,6 +57,7 @@
 (define-public (set-user-list (userList (list 100 {user: principal, enabled: bool})))
   (begin
     (try! (is-deployer))
+    (asserts! (> (len userList) u0) ERR_INVALID)
     (ok (map set-user-iter userList))
   )
 )
