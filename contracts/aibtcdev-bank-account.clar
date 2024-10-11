@@ -2,12 +2,6 @@
 ;; version: 1.0.0
 ;; summary: A contract that allows specified principals to withdraw STX from the contract with given rules.
 
-;; traits
-;;
-
-;; token definitions
-;;
-
 ;; constants
 ;;
 (define-constant DEPLOYER tx-sender)
@@ -22,13 +16,19 @@
 (define-data-var withdrawalPeriod uint u144) ;; 144 Bitcoin blocks, ~1 day
 (define-data-var withdrawalAmount uint u10000000) ;; 10,000,000 microSTX, or 10 STX
 (define-data-var lastWithdrawalBlock uint u0)
+(define-data-var accountHolder principal SELF)
 
-;; data maps
-;;
-(define-map Users principal bool)
 
 ;; public functions
 ;;
+
+(define-public (set-account-holder (new principal))
+  (begin
+    (try! (is-deployer))
+    (asserts! (not (is-eq (var-get accountHolder) new)) ERR_INVALID)
+    (ok (var-set accountHolder new))
+  )
+)
 
 (define-public (set-withdrawal-period (period uint))
   (begin
@@ -54,14 +54,6 @@
   )
 )
 
-(define-public (set-user-list (userList (list 100 {user: principal, enabled: bool})))
-  (begin
-    (try! (is-deployer))
-    (asserts! (> (len userList) u0) ERR_INVALID)
-    (ok (map set-user-iter userList))
-  )
-)
-
 (define-public (deposit-stx (amount uint))
   (begin
     (print {
@@ -77,14 +69,9 @@
 )
 
 (define-public (withdraw-stx)
-  (let
-    (
-      ;; verify user is known in the map (some not none)
-      (requestor contract-caller)
-      (userEnabled (unwrap! (map-get? Users contract-caller) ERR_UNAUTHORIZED))
-    )
+  (begin
     ;; verify user is enabled in the map
-    (asserts! userEnabled ERR_UNAUTHORIZED)
+    (try! (is-account-holder))
     ;; verify user is not withdrawing too soon
     (asserts! (>= block-height (+ (var-get lastWithdrawalBlock) (var-get withdrawalPeriod))) ERR_TOO_SOON)
     ;; update last withdrawal block
@@ -95,10 +82,10 @@
       payload: {
         amount: (var-get withdrawalAmount),
         caller: contract-caller,
-        recipient: contract-caller
+        recipient: (var-get accountHolder)
       }
     })
-    (as-contract (stx-transfer? (var-get withdrawalAmount) SELF requestor))
+    (as-contract (stx-transfer? (var-get withdrawalAmount) SELF (var-get accountHolder)))
   )
 )
 
@@ -129,10 +116,6 @@
   }
 )
 
-(define-read-only (get-user (user principal))
-  (map-get? Users user)
-)
-
 (define-read-only (get-standard-caller)
   (let ((d (unwrap-panic (principal-destruct? contract-caller))))
     (unwrap-panic (principal-construct? (get version d) (get hash-bytes d)))
@@ -145,17 +128,6 @@
   (ok (asserts! (is-eq DEPLOYER (get-standard-caller)) ERR_UNAUTHORIZED))
 )
 
-(define-private (set-user-iter (item {user: principal, enabled: bool}))
-  (begin
-    (print {
-      notification: "set-user",
-      payload: {
-        caller: contract-caller,
-        enabled: (get enabled item),
-        user: (get user item),        
-      }
-    })
-    (map-set Users (get user item) (get enabled item))
-    (ok (get enabled item))
-  )
+(define-private (is-account-holder)
+  (ok (asserts! (is-eq (var-get accountHolder) (get-standard-caller)) ERR_UNAUTHORIZED))
 )
