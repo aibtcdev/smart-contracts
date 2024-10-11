@@ -109,6 +109,30 @@
   (stx-get-balance SELF)
 )
 
+(define-read-only (get-withdrawal-period)
+  (var-get withdrawalPeriod)
+)
+
+(define-read-only (get-withdrawal-amount)
+  (var-get withdrawalAmount)
+)
+
+(define-read-only (get-last-withdrawal-block)
+  (var-get lastWithdrawalBlock)
+)
+
+(define-read-only (get-all-vars)
+  {
+    withdrawalPeriod: (var-get withdrawalPeriod),
+    withdrawalAmount: (var-get withdrawalAmount),
+    lastWithdrawalBlock: (var-get lastWithdrawalBlock)
+  }
+)
+
+(define-read-only (get-user (user principal))
+  (map-get? Users user)
+)
+
 (define-read-only (get-standard-caller)
   (let ((d (unwrap-panic (principal-destruct? contract-caller))))
     (unwrap-panic (principal-construct? (get version d) (get hash-bytes d)))

@@ -15,6 +15,9 @@ enum ErrCode {
   ERR_TOO_SOON = 1002,
 }
 
+const withdrawalAmount = 10000000;
+const withdrawalPeriod = 144;
+
 const userList = [
   { user: address1, enabled: true },
   { user: address2, enabled: false },
@@ -267,6 +270,61 @@ describe("aibtcdev-bank-account", () => {
         addressDeployer
       );
       expect(response.result).toBeUint(100000000);
+    });
+  });
+
+  describe("get-withdrawal-period", () => {
+    it("succeeds and returns the withdrawal period", () => {
+      const response = simnet.callReadOnlyFn(
+        "aibtcdev-bank-account",
+        "get-withdrawal-period",
+        [],
+        address1
+      );
+      expect(response.result).toBeUint(withdrawalPeriod);
+    });
+  });
+
+  describe("get-withdrawal-amount", () => {
+    it("succeeds and returns the withdrawal amount", () => {
+      const response = simnet.callReadOnlyFn(
+        "aibtcdev-bank-account",
+        "get-withdrawal-amount",
+        [],
+        address1
+      );
+      expect(response.result).toBeUint(withdrawalAmount);
+    });
+  });
+
+  describe("get-last-withdrawal-block", () => {
+    it("succeeds and returns the last withdrawal block", () => {
+      const response = simnet.callReadOnlyFn(
+        "aibtcdev-bank-account",
+        "get-last-withdrawal-block",
+        [],
+        address1
+      );
+      expect(response.result).toBeUint(0);
+    });
+  });
+
+  describe("get-all-vars", () => {
+    it("succeeds and returns all the variables", () => {
+      const expectedResponse = {
+        withdrawalPeriod: Cl.uint(withdrawalPeriod),
+        withdrawalAmount: Cl.uint(withdrawalAmount),
+        lastWithdrawalBlock: Cl.uint(0),
+      };
+
+      const response = simnet.callReadOnlyFn(
+        "aibtcdev-bank-account",
+        "get-all-vars",
+        [],
+        address1
+      ).result;
+
+      expect(response).toBeTuple(expectedResponse);
     });
   });
 
