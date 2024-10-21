@@ -235,7 +235,7 @@ describe("Toggling a Resource Status", () => {
     expect(response.result).toBeOk(Cl.bool(false));
     expect(resourceResponse.result).toBeSome(
       Cl.tuple({
-        createdAt: Cl.uint(3),
+        createdAt: Cl.uint(4),
         enabled: Cl.bool(false),
         description: Cl.stringUtf8("Generate a unique Bitcoin face."),
         name: Cl.stringUtf8("Bitcoin Face"),
@@ -247,7 +247,7 @@ describe("Toggling a Resource Status", () => {
     expect(response2.result).toBeOk(Cl.bool(true));
     expect(resourceResponse2.result).toBeSome(
       Cl.tuple({
-        createdAt: Cl.uint(3),
+        createdAt: Cl.uint(4),
         enabled: Cl.bool(true),
         description: Cl.stringUtf8("Generate a unique Bitcoin face."),
         name: Cl.stringUtf8("Bitcoin Face"),
@@ -348,7 +348,7 @@ describe("Toggling a Resource Status", () => {
     expect(response.result).toBeOk(Cl.bool(false));
     expect(resourceResponse.result).toBeSome(
       Cl.tuple({
-        createdAt: Cl.uint(3),
+        createdAt: Cl.uint(4),
         enabled: Cl.bool(false),
         description: Cl.stringUtf8("Generate a unique Bitcoin face."),
         name: Cl.stringUtf8("Bitcoin Face"),
@@ -360,7 +360,7 @@ describe("Toggling a Resource Status", () => {
     expect(response2.result).toBeOk(Cl.bool(true));
     expect(resourceResponse2.result).toBeSome(
       Cl.tuple({
-        createdAt: Cl.uint(3),
+        createdAt: Cl.uint(4),
         enabled: Cl.bool(true),
         description: Cl.stringUtf8("Generate a unique Bitcoin face."),
         name: Cl.stringUtf8("Bitcoin Face"),
@@ -607,7 +607,9 @@ describe("Paying an Invoice", () => {
     const deployer = accounts.get("deployer")!;
     const address1 = accounts.get("wallet_1")!;
     const expectedCount = 1;
-    const memo = Buffer.from("This is a memo test!");
+    // const memo = Buffer.from("This is a memo test!");
+    const memo = new TextEncoder().encode("This is a memo test!");
+
     // ACT
     // mint aiBTC to pay for resources
     simnet.callPublicFn(
@@ -818,7 +820,7 @@ describe("Paying an Invoice", () => {
     // ASSERT
     expect(resourceResponse.result).toBeSome(
       Cl.tuple({
-        createdAt: Cl.uint(5),
+        createdAt: Cl.uint(6),
         enabled: Cl.bool(true),
         description: Cl.stringUtf8("Generate a unique Bitcoin face."),
         name: Cl.stringUtf8("Bitcoin Face"),
