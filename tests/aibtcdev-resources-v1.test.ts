@@ -198,6 +198,7 @@ describe("Toggling a Resource Status", () => {
       testResource,
       deployer
     );
+    const resourceBlock = simnet.blockHeight;
     // progress the chain
     simnet.mineEmptyBlocks(5000);
     // toggle resource
@@ -235,7 +236,7 @@ describe("Toggling a Resource Status", () => {
     expect(response.result).toBeOk(Cl.bool(false));
     expect(resourceResponse.result).toBeSome(
       Cl.tuple({
-        createdAt: Cl.uint(4),
+        createdAt: Cl.uint(resourceBlock),
         enabled: Cl.bool(false),
         description: Cl.stringUtf8("Generate a unique Bitcoin face."),
         name: Cl.stringUtf8("Bitcoin Face"),
@@ -247,7 +248,7 @@ describe("Toggling a Resource Status", () => {
     expect(response2.result).toBeOk(Cl.bool(true));
     expect(resourceResponse2.result).toBeSome(
       Cl.tuple({
-        createdAt: Cl.uint(4),
+        createdAt: Cl.uint(resourceBlock),
         enabled: Cl.bool(true),
         description: Cl.stringUtf8("Generate a unique Bitcoin face."),
         name: Cl.stringUtf8("Bitcoin Face"),
@@ -311,6 +312,7 @@ describe("Toggling a Resource Status", () => {
       testResource,
       deployer
     );
+    const resourceBlock = simnet.blockHeight;
     // progress the chain
     simnet.mineEmptyBlocks(5000);
     // toggle resource
@@ -348,7 +350,7 @@ describe("Toggling a Resource Status", () => {
     expect(response.result).toBeOk(Cl.bool(false));
     expect(resourceResponse.result).toBeSome(
       Cl.tuple({
-        createdAt: Cl.uint(4),
+        createdAt: Cl.uint(resourceBlock),
         enabled: Cl.bool(false),
         description: Cl.stringUtf8("Generate a unique Bitcoin face."),
         name: Cl.stringUtf8("Bitcoin Face"),
@@ -360,7 +362,7 @@ describe("Toggling a Resource Status", () => {
     expect(response2.result).toBeOk(Cl.bool(true));
     expect(resourceResponse2.result).toBeSome(
       Cl.tuple({
-        createdAt: Cl.uint(4),
+        createdAt: Cl.uint(resourceBlock),
         enabled: Cl.bool(true),
         description: Cl.stringUtf8("Generate a unique Bitcoin face."),
         name: Cl.stringUtf8("Bitcoin Face"),
@@ -773,6 +775,7 @@ describe("Paying an Invoice", () => {
       testResource,
       deployer
     );
+    const resourceBlock = simnet.blockHeight;
     // pay invoice for resource
     simnet.callPublicFn(
       "aibtcdev-resources-v1",
@@ -820,7 +823,7 @@ describe("Paying an Invoice", () => {
     // ASSERT
     expect(resourceResponse.result).toBeSome(
       Cl.tuple({
-        createdAt: Cl.uint(6),
+        createdAt: Cl.uint(resourceBlock),
         enabled: Cl.bool(true),
         description: Cl.stringUtf8("Generate a unique Bitcoin face."),
         name: Cl.stringUtf8("Bitcoin Face"),
