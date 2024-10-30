@@ -1,24 +1,12 @@
 
-;; title: messaging
-;; version:
-;; summary:
-;; description:
-
-;; traits
-;;
-
-;; token definitions
-;;
+;; title: aibtcdev-messaging
+;; version: 1.0
+;; summary: A simple messaging contract agents can use.
+;; description: Send an on-chain message to anyone listening to this contract.
 
 ;; constants
 ;;
 (define-constant INPUT_ERROR (err u400))
-
-;; data vars
-;;
-
-;; data maps
-;;
 
 ;; public functions
 
@@ -34,10 +22,3 @@
     (ok true)
   )
 )
-
-;; read only functions
-;;
-
-;; private functions
-;;
-
