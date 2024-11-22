@@ -5,8 +5,8 @@
 
 ;; traits
 ;;
-(impl-trait .aibtcdev-traits-v1.aibtcdev-resource-mgmt-v1)
-(impl-trait .aibtcdev-traits-v1.aibtcdev-invoice-v1)
+(impl-trait .aibtcdev-payment-traits.aibtcdev-resource-mgmt-v1)
+(impl-trait .aibtcdev-payment-traits.aibtcdev-invoice-v1)
 
 ;; constants
 ;;
@@ -381,13 +381,13 @@
       }
     })
     ;; make transfer
-    (if (is-some memo)
+    ;;(if (is-some memo)
       ;; MAINNET
       ;; xBTC SP3K8BC0PPEVCV7NZ6QSRWPQ2JE9E5B6N3PA0KBR9.token-wbtc
       ;; aBTC SP3K8BC0PPEVCV7NZ6QSRWPQ2JE9E5B6N3PA0KBR9.token-abtc
-      (try! (contract-call? .aibtcdev-aibtc transfer (get price resourceData) contract-caller (var-get paymentAddress) memo))
-      (try! (contract-call? .aibtcdev-aibtc transfer (get price resourceData) contract-caller (var-get paymentAddress) none))
-    )
+      ;;(try! (contract-call? .aibtcdev-aibtc transfer (get price resourceData) contract-caller (var-get paymentAddress) memo))
+      ;;(try! (contract-call? .aibtcdev-aibtc transfer (get price resourceData) contract-caller (var-get paymentAddress) none))
+    ;;)
     ;; return new count
     (ok newCount)
   )
