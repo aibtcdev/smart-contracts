@@ -1,14 +1,18 @@
 ;; title: aibtcdev-bank-account
 ;; version: 1.0.0
-;; summary: A contract that allows specified principals to withdraw STX from the contract with given rules.
+;; summary: An extension that allows a principal to withdraw STX from the contract with given rules.
+
+;; traits
+;;
+(impl-trait .aibtcdev-extension-trait.extension-trait)
 
 ;; constants
 ;;
-(define-constant DEPLOYER tx-sender)
 (define-constant SELF (as-contract tx-sender))
 (define-constant ERR_INVALID (err u1000))
 (define-constant ERR_UNAUTHORIZED (err u1001))
 (define-constant ERR_TOO_SOON (err u1002))
+(define-constant ERR_INVALID_AMOUNT (err u1003))
 
 
 ;; data vars
@@ -22,9 +26,19 @@
 ;; public functions
 ;;
 
+(define-public (is-dao-or-extension)
+  (ok (asserts! (or (is-eq tx-sender .aibtcdev-dao)
+    (contract-call? .aibtcdev-dao is-extension contract-caller)) ERR_UNAUTHORIZED
+  ))
+)
+
+(define-public (callback (sender principal) (memo (buff 34)))
+  (ok true)
+)
+
 (define-public (set-account-holder (new principal))
   (begin
-    (try! (is-deployer))
+    (try! (is-dao-or-extension))
     (asserts! (not (is-eq (var-get accountHolder) new)) ERR_INVALID)
     (ok (var-set accountHolder new))
   )
@@ -32,7 +46,7 @@
 
 (define-public (set-withdrawal-period (period uint))
   (begin
-    (try! (is-deployer))
+    (try! (is-dao-or-extension))
     (asserts! (> period u0) ERR_INVALID)
     (ok (var-set withdrawalPeriod period))
   )
@@ -40,7 +54,7 @@
 
 (define-public (set-withdrawal-amount (amount uint))
   (begin
-    (try! (is-deployer))
+    (try! (is-dao-or-extension))
     (asserts! (> amount u0) ERR_INVALID)
     (ok (var-set withdrawalAmount amount))
   )
@@ -48,7 +62,7 @@
 
 (define-public (override-last-withdrawal-block (block uint))
   (begin
-    (try! (is-deployer))
+    (try! (is-dao-or-extension))
     (asserts! (> block u0) ERR_INVALID)
     (ok (var-set lastWithdrawalBlock block))
   )
@@ -56,6 +70,7 @@
 
 (define-public (deposit-stx (amount uint))
   (begin
+    (asserts! (> amount u0) ERR_INVALID_AMOUNT)
     (print {
       notification: "deposit-stx",
       payload: {
@@ -89,11 +104,14 @@
   )
 )
 
-
 ;; read only functions
 ;;
 (define-read-only (get-account-balance)
   (stx-get-balance SELF)
+)
+
+(define-read-only (get-account-holder)
+  (var-get accountHolder)
 )
 
 (define-read-only (get-withdrawal-period)
@@ -110,9 +128,10 @@
 
 (define-read-only (get-all-vars)
   {
-    withdrawalPeriod: (var-get withdrawalPeriod),
+    accountHolder: (var-get accountHolder),
+    lastWithdrawalBlock: (var-get lastWithdrawalBlock),
     withdrawalAmount: (var-get withdrawalAmount),
-    lastWithdrawalBlock: (var-get lastWithdrawalBlock)
+    withdrawalPeriod: (var-get withdrawalPeriod),
   }
 )
 
@@ -124,10 +143,6 @@
 
 ;; private functions
 ;;
-(define-private (is-deployer)
-  (ok (asserts! (is-eq DEPLOYER (get-standard-caller)) ERR_UNAUTHORIZED))
-)
-
 (define-private (is-account-holder)
   (ok (asserts! (is-eq (var-get accountHolder) (get-standard-caller)) ERR_UNAUTHORIZED))
 )
