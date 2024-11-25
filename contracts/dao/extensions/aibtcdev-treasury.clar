@@ -46,9 +46,11 @@
   (begin
     (try! (is-dao-or-extension))
     (print {
-      event: "allow-asset",
-      enabled: enabled,
-      token: token
+      notification: "allow-asset",
+      payload: {
+        enabled: enabled,
+        token: token
+      }
     })
     (ok (map-set AllowedAssets token enabled))
   )
@@ -66,11 +68,13 @@
 (define-public (deposit-stx (amount uint))
   (begin
     (print {
-      event: "deposit-stx",
-      amount: amount,
-      caller: contract-caller,
-      recipient: TREASURY,
-      sender: tx-sender
+      notification: "deposit-stx",
+      payload: {
+        amount: amount,
+        caller: contract-caller,
+        recipient: TREASURY,
+        sender: tx-sender
+      }
     })
     (stx-transfer? amount tx-sender TREASURY)
   )
@@ -81,12 +85,14 @@
   (begin
     (asserts! (is-allowed (contract-of ft)) ERR_UNKNOWN_ASSSET)
     (print {
-      event: "deposit-ft",
-      amount: amount,
-      assetContract: (contract-of ft),
-      caller: contract-caller,
-      recipient: TREASURY,
-      sender: tx-sender
+      notification: "deposit-ft",
+      payload: {
+        amount: amount,
+        assetContract: (contract-of ft),
+        caller: contract-caller,
+        recipient: TREASURY,
+        sender: tx-sender
+      }
     })
     (contract-call? ft transfer amount tx-sender TREASURY none)
   )
@@ -97,12 +103,14 @@
   (begin
     (asserts! (is-allowed (contract-of nft)) ERR_UNKNOWN_ASSSET)
     (print {
-      event: "deposit-nft",
-      assetContract: (contract-of nft),
-      caller: contract-caller,
-      recipient: TREASURY,
-      sender: tx-sender,
-      tokenId: id,
+      notification: "deposit-nft",
+      payload: {
+        assetContract: (contract-of nft),
+        caller: contract-caller,
+        recipient: TREASURY,
+        sender: tx-sender,
+        tokenId: id
+      }
     })
     (contract-call? nft transfer id tx-sender TREASURY)
   )
@@ -113,11 +121,13 @@
   (begin
     (try! (is-dao-or-extension))
     (print {
-      event: "withdraw-stx",
-      amount: amount,
-      caller: contract-caller,
-      recipient: recipient,
-      sender: tx-sender
+      notification: "withdraw-stx",
+      payload: {
+        amount: amount,
+        caller: contract-caller,
+        recipient: recipient,
+        sender: tx-sender
+      }
     })
     (as-contract (stx-transfer? amount TREASURY recipient))
   )
@@ -129,11 +139,13 @@
     (try! (is-dao-or-extension))
     (asserts! (is-allowed (contract-of ft)) ERR_UNKNOWN_ASSSET)
     (print {
-      event: "withdraw-ft",
-      assetContract: (contract-of ft),
-      caller: contract-caller,
-      recipient: recipient,
-      sender: tx-sender
+      notification: "withdraw-ft",
+      payload: {
+        assetContract: (contract-of ft),
+        caller: contract-caller,
+        recipient: recipient,
+        sender: tx-sender
+      }
     })
     (as-contract (contract-call? ft transfer amount TREASURY recipient none))
   )
@@ -145,12 +157,14 @@
     (try! (is-dao-or-extension))
     (asserts! (is-allowed (contract-of nft)) ERR_UNKNOWN_ASSSET)
     (print {
-      event: "withdraw-nft",
-      assetContract: (contract-of nft),
-      caller: contract-caller,
-      recipient: recipient,
-      sender: tx-sender,
-      tokenId: id
+      notification: "withdraw-nft",
+      payload: {
+        assetContract: (contract-of nft),
+        caller: contract-caller,
+        recipient: recipient,
+        sender: tx-sender,
+        tokenId: id
+      }
     })
     (as-contract (contract-call? nft transfer id TREASURY recipient))
   )
@@ -161,11 +175,13 @@
   (begin
     (try! (is-dao-or-extension))
     (print {
-      event: "delegate-stx",
-      amount: maxAmount,
-      caller: contract-caller,
-      delegate: to,
-      sender: tx-sender
+      notification: "delegate-stx",
+      payload: {
+        amount: maxAmount,
+        caller: contract-caller,
+        delegate: to,
+        sender: tx-sender
+      }
     })
     (match (as-contract (contract-call? (var-get poxContract) delegate-stx maxAmount to none none))
       success (ok success)
@@ -179,9 +195,11 @@
   (begin
     (try! (is-dao-or-extension))
     (print {
-      event: "revoke-delegate-stx",
-      caller: contract-caller,
-      sender: tx-sender
+      notification: "revoke-delegate-stx",
+      payload: {
+        caller: contract-caller,
+        sender: tx-sender
+      }
     })
     (match (as-contract (contract-call? (var-get poxContract) revoke-delegate-stx))
       success (begin (print success) (ok true))
@@ -208,9 +226,11 @@
 (define-private (allow-assets-iter (item {token: principal, enabled: bool}))
   (begin
     (print {
-      event: "allow-asset",
-      enabled: (get enabled item),
-      token: (get token item)
+      notification: "allow-asset",
+      payload: {
+        enabled: (get enabled item),
+        token: (get token item)
+      }
     })
     (map-set AllowedAssets (get token item) (get enabled item))
   )
