@@ -6,10 +6,8 @@
 ;;
 
 (impl-trait .aibtcdev-extension-trait.extension-trait)
-;; MAINNET: 'SP3FBR2AGK5H9QBDH3EEN6DF8EK8JY7RX8QJ5SVTE.sip-010-trait-ft-standard.sip-010-trait
-(use-trait ft-trait 'ST1NXBK3K5YYMD6FD41MVNP3JS1GABZ8TRVX023PT.sip-010-trait-ft-standard.sip-010-trait)
-;; MAINNET: 'SP2PABAF9FTAJYNFZH93XENAJ8FVY99RRM50D2JG9.nft-trait.nft-trait
-(use-trait nft-trait 'ST1NXBK3K5YYMD6FD41MVNP3JS1GABZ8TRVX023PT.nft-trait.nft-trait)
+(use-trait ft-trait 'SP3FBR2AGK5H9QBDH3EEN6DF8EK8JY7RX8QJ5SVTE.sip-010-trait-ft-standard.sip-010-trait)
+(use-trait nft-trait 'SP2PABAF9FTAJYNFZH93XENAJ8FVY99RRM50D2JG9.nft-trait.nft-trait)
 
 ;; constants
 ;;
@@ -17,11 +15,6 @@
 (define-constant ERR_UNAUTHORIZED (err u2000))
 (define-constant ERR_UNKNOWN_ASSSET (err u2001))
 (define-constant TREASURY (as-contract tx-sender))
-
-;; data vars
-;;
-(define-data-var poxContract principal 'SP000000000000000000002Q6VF78.pox-4)
-
 
 ;; data maps
 ;;
@@ -83,7 +76,7 @@
 ;; deposit FT to the treasury
 (define-public (deposit-ft (ft <ft-trait>) (amount uint))
   (begin
-    (asserts! (is-allowed (contract-of ft)) ERR_UNKNOWN_ASSSET)
+    (asserts! (is-allowed-asset (contract-of ft)) ERR_UNKNOWN_ASSSET)
     (print {
       notification: "deposit-ft",
       payload: {
@@ -101,7 +94,7 @@
 ;; deposit NFT to the treasury
 (define-public (deposit-nft (nft <nft-trait>) (id uint))
   (begin
-    (asserts! (is-allowed (contract-of nft)) ERR_UNKNOWN_ASSSET)
+    (asserts! (is-allowed-asset (contract-of nft)) ERR_UNKNOWN_ASSSET)
     (print {
       notification: "deposit-nft",
       payload: {
@@ -137,7 +130,7 @@
 (define-public (withdraw-ft (ft <ft-trait>) (amount uint) (recipient principal))
   (begin
     (try! (is-dao-or-extension))
-    (asserts! (is-allowed (contract-of ft)) ERR_UNKNOWN_ASSSET)
+    (asserts! (is-allowed-asset (contract-of ft)) ERR_UNKNOWN_ASSSET)
     (print {
       notification: "withdraw-ft",
       payload: {
@@ -155,7 +148,7 @@
 (define-public (withdraw-nft (nft <nft-trait>) (id uint) (recipient principal))
   (begin
     (try! (is-dao-or-extension))
-    (asserts! (is-allowed (contract-of nft)) ERR_UNKNOWN_ASSSET)
+    (asserts! (is-allowed-asset (contract-of nft)) ERR_UNKNOWN_ASSSET)
     (print {
       notification: "withdraw-nft",
       payload: {
@@ -183,7 +176,7 @@
         sender: tx-sender
       }
     })
-    (match (as-contract (contract-call? (var-get poxContract) delegate-stx maxAmount to none none))
+    (match (as-contract (contract-call? 'SP000000000000000000002Q6VF78.pox-4 delegate-stx maxAmount to none none))
       success (ok success)
       err (err (to-uint err))
     )
@@ -201,7 +194,7 @@
         sender: tx-sender
       }
     })
-    (match (as-contract (contract-call? (var-get poxContract) revoke-delegate-stx))
+    (match (as-contract (contract-call? 'SP000000000000000000002Q6VF78.pox-4 revoke-delegate-stx))
       success (begin (print success) (ok true))
       err (err (to-uint err))
     )
