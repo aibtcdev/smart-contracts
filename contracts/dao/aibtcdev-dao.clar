@@ -120,7 +120,7 @@
   (ok (asserts! (or (is-eq tx-sender (as-contract tx-sender)) (is-extension contract-caller)) ERR_UNAUTHORIZED))
 )
 
-;; set extensions helper function
+;; set-extensions helper function
 (define-private (set-extensions-iter (item {extension: principal, enabled: bool}))
   (begin
     (print {
