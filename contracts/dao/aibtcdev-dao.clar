@@ -14,6 +14,7 @@
 (define-constant ERR_UNAUTHORIZED (err u900))
 (define-constant ERR_ALREADY_EXECUTED (err u901))
 (define-constant ERR_INVALID_EXTENSION (err u902))
+(define-constant ERR_NO_EMPTY_LISTS (err u903))
 
 ;; data vars
 ;;
@@ -47,7 +48,13 @@
   (begin
     (try! (is-self-or-extension))
     (asserts! (map-insert ExecutedProposals (contract-of proposal) block-height) ERR_ALREADY_EXECUTED)
-    (print {event: "execute", proposal: proposal})
+    (print {
+      notification: "execute",
+      payload: {
+        proposal: proposal,
+        sender: sender,
+      }
+    })
     (as-contract (contract-call? proposal execute sender))
   )
 )
@@ -56,7 +63,13 @@
 (define-public (set-extension (extension principal) (enabled bool))
   (begin
     (try! (is-self-or-extension))
-    (print {event: "extension", enabled: enabled, extension: extension,})
+    (print {
+      notification: "extension",
+      payload: {
+        enabled: enabled,
+        extension: extension,
+      }
+    })
     (ok (map-set Extensions extension enabled))
   )
 )
@@ -65,6 +78,7 @@
 (define-public (set-extensions (extensionList (list 200 {extension: principal, enabled: bool})))
   (begin
     (try! (is-self-or-extension))
+    (asserts! (>= (len extensionList) u0) ERR_NO_EMPTY_LISTS)
     (ok (map set-extensions-iter extensionList))
   )
 )
@@ -75,6 +89,14 @@
     ((sender tx-sender))
     (asserts! (is-extension contract-caller) ERR_INVALID_EXTENSION)
     (asserts! (is-eq contract-caller (contract-of extension)) ERR_INVALID_EXTENSION)
+    (print {
+      notification: "request-extension-callback",
+      payload: {
+        extension: extension,
+        memo: memo,
+        sender: sender,
+      }
+    })
     (as-contract (contract-call? extension callback sender memo))
   )
 )
@@ -101,7 +123,13 @@
 ;; set extensions helper function
 (define-private (set-extensions-iter (item {extension: principal, enabled: bool}))
   (begin
-    (print {event: "extension", enabled: (get enabled item), extension: (get extension item)})
+    (print {
+      notification: "extension",
+      payload: {
+        enabled: (get enabled item),
+        extension: (get extension item),
+      }
+    })
     (map-set Extensions (get extension item) (get enabled item))
   )
 )
