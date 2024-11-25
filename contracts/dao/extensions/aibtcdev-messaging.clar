@@ -1,8 +1,7 @@
 
 ;; title: aibtcdev-messaging
-;; version: 1.0
-;; summary: A simple messaging contract agents can use.
-;; description: Send an on-chain message to anyone listening to this contract.
+;; version: 1.0.0
+;; summary: An extension to send messages on-chain to anyone listening to this contract.
 
 ;; traits
 ;;

@@ -1,6 +1,6 @@
 ;; title: aibtcdev-treasury
 ;; version: 1.0.0
-;; summary: An extension to manage STX, SIP-009 NFTs, and SIP-010 FTs for the DAO.
+;; summary: An extension that manages STX, SIP-009 NFTs, and SIP-010 FTs.
 
 ;; traits
 ;;
