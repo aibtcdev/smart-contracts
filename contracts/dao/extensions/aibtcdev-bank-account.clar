@@ -1,6 +1,10 @@
 ;; title: aibtcdev-bank-account
 ;; version: 1.0.0
-;; summary: A contract that allows specified principals to withdraw STX from the contract with given rules.
+;; summary: An extension that allows a principal to withdraw STX from the contract with given rules.
+
+;; traits
+;;
+(impl-trait .aibtcdev-extension-trait.extension-trait)
 
 ;; constants
 ;;
@@ -9,6 +13,7 @@
 (define-constant ERR_INVALID (err u1000))
 (define-constant ERR_UNAUTHORIZED (err u1001))
 (define-constant ERR_TOO_SOON (err u1002))
+(define-constant ERR_INVALID_AMOUNT (err u1003))
 
 
 ;; data vars
@@ -56,6 +61,7 @@
 
 (define-public (deposit-stx (amount uint))
   (begin
+    (asserts! (> amount u0) ERR_INVALID_AMOUNT)
     (print {
       notification: "deposit-stx",
       payload: {
@@ -89,6 +95,9 @@
   )
 )
 
+(define-public (callback (sender principal) (memo (buff 34)))
+  (ok true)
+)
 
 ;; read only functions
 ;;
