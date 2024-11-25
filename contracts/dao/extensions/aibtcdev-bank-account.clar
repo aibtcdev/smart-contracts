@@ -8,7 +8,6 @@
 
 ;; constants
 ;;
-(define-constant DEPLOYER tx-sender)
 (define-constant SELF (as-contract tx-sender))
 (define-constant ERR_INVALID (err u1000))
 (define-constant ERR_UNAUTHORIZED (err u1001))
@@ -144,10 +143,6 @@
 
 ;; private functions
 ;;
-(define-private (is-deployer)
-  (ok (asserts! (is-eq DEPLOYER (get-standard-caller)) ERR_UNAUTHORIZED))
-)
-
 (define-private (is-account-holder)
   (ok (asserts! (is-eq (var-get accountHolder) (get-standard-caller)) ERR_UNAUTHORIZED))
 )
