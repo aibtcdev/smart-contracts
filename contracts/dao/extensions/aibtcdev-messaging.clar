@@ -15,12 +15,6 @@
 
 ;; public functions
 
-(define-public (is-dao-or-extension)
-  (ok (asserts! (or (is-eq tx-sender .aibtcdev-dao)
-    (contract-call? .aibtcdev-dao is-extension contract-caller)) ERR_UNAUTHORIZED
-  ))
-)
-
 (define-public (callback (sender principal) (memo (buff 34)))
   (ok true)
 )
