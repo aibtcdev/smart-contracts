@@ -4,6 +4,7 @@
 
 ;; traits
 ;;
+(impl-trait .aibtcdev-bank-account-trait.bank-account-trait)
 (impl-trait .aibtcdev-extension-trait.extension-trait)
 
 ;; constants
@@ -25,12 +26,6 @@
 
 ;; public functions
 ;;
-
-(define-public (is-dao-or-extension)
-  (ok (asserts! (or (is-eq tx-sender .aibtcdev-dao)
-    (contract-call? .aibtcdev-dao is-extension contract-caller)) ERR_UNAUTHORIZED
-  ))
-)
 
 (define-public (callback (sender principal) (memo (buff 34)))
   (ok true)
@@ -65,6 +60,71 @@
     (try! (is-dao-or-extension))
     (asserts! (> block u0) ERR_INVALID)
     (ok (var-set lastWithdrawalBlock block))
+  )
+)
+
+(define-public (update-terms
+    (accountHolder (optional principal)) 
+    (withdrawalPeriod (optional uint))
+    (withdrawalAmount (optional uint))
+    (lastWithdrawalBlock (optional uint))
+    (opcode (optional (buff 16))))
+
+  (begin
+    ;; Check authorization
+    (try! (is-dao-or-extension))
+
+    ;; Update account holder if provided
+    (match accountHolder holder
+      (begin 
+        (asserts! (not (is-eq (var-get accountHolder) holder)) ERR_INVALID)
+        (var-set accountHolder holder)
+      )
+      true
+    )
+
+    ;; Update withdrawal period if provided
+    (match withdrawalPeriod period
+      (begin 
+        (asserts! (> period u0) ERR_INVALID)
+        (var-set withdrawalPeriod period)
+      )
+      true
+    )
+
+    ;; Update withdrawal amount if provided
+    (match withdrawalAmount amount
+      (begin
+        (asserts! (> amount u0) ERR_INVALID)
+        (var-set withdrawalAmount amount)
+      )
+      true
+    )
+
+    ;; Update last withdrawal block if provided
+    (match lastWithdrawalBlock block
+      (begin
+        (asserts! (> block u0) ERR_INVALID)
+        (var-set lastWithdrawalBlock block)
+      )
+      true
+    )
+
+    ;; Print settings update event
+    (print {
+      notification: "terms-updated",
+      payload: {
+        accountHolder: (var-get accountHolder),
+        withdrawalPeriod: (var-get withdrawalPeriod),
+        withdrawalAmount: (var-get withdrawalAmount),
+        lastWithdrawalBlock: (var-get lastWithdrawalBlock),
+        opcode: opcode,
+        caller: contract-caller,
+        sender: tx-sender
+      }
+    })
+
+    (ok true)
   )
 )
 
@@ -126,7 +186,7 @@
   (var-get lastWithdrawalBlock)
 )
 
-(define-read-only (get-all-vars)
+(define-read-only (get-terms)
   {
     accountHolder: (var-get accountHolder),
     lastWithdrawalBlock: (var-get lastWithdrawalBlock),
@@ -135,14 +195,21 @@
   }
 )
 
-(define-read-only (get-standard-caller)
+;; private functions
+;;
+
+(define-private (is-dao-or-extension)
+  (ok (asserts! (or (is-eq tx-sender .aibtcdev-dao)
+    (contract-call? .aibtcdev-dao is-extension contract-caller)) ERR_UNAUTHORIZED
+  ))
+)
+
+(define-private (is-account-holder)
+  (ok (asserts! (is-eq (var-get accountHolder) (get-standard-caller)) ERR_UNAUTHORIZED))
+)
+
+(define-private (get-standard-caller)
   (let ((d (unwrap-panic (principal-destruct? contract-caller))))
     (unwrap-panic (principal-construct? (get version d) (get hash-bytes d)))
   )
-)
-
-;; private functions
-;;
-(define-private (is-account-holder)
-  (ok (asserts! (is-eq (var-get accountHolder) (get-standard-caller)) ERR_UNAUTHORIZED))
 )

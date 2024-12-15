@@ -5,6 +5,7 @@
 ;; traits
 ;;
 
+(impl-trait .aibtcdev-treasury-trait.treasury-trait)
 (impl-trait .aibtcdev-extension-trait.extension-trait)
 (use-trait ft-trait 'SP3FBR2AGK5H9QBDH3EEN6DF8EK8JY7RX8QJ5SVTE.sip-010-trait-ft-standard.sip-010-trait)
 (use-trait nft-trait 'SP2PABAF9FTAJYNFZH93XENAJ8FVY99RRM50D2JG9.nft-trait.nft-trait)
@@ -23,12 +24,6 @@
 
 ;; public functions
 ;;
-
-(define-public (is-dao-or-extension)
-  (ok (asserts! (or (is-eq tx-sender .aibtcdev-dao)
-    (contract-call? .aibtcdev-dao is-extension contract-caller)) ERR_UNAUTHORIZED
-  ))
-)
 
 (define-public (callback (sender principal) (memo (buff 34)))
   (ok true)
@@ -215,7 +210,12 @@
 ;; private functions
 ;;
 
-;; set-assets helper function
+(define-private (is-dao-or-extension)
+  (ok (asserts! (or (is-eq tx-sender .aibtcdev-dao)
+    (contract-call? .aibtcdev-dao is-extension contract-caller)) ERR_UNAUTHORIZED
+  ))
+)
+
 (define-private (allow-assets-iter (item {token: principal, enabled: bool}))
   (begin
     (print {
