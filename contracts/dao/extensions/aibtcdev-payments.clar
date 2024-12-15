@@ -1,12 +1,12 @@
-
-;; title: aibtcdev-resources-v1
-;; version: 0.0.2
-;; summary: HTTP 402 payments powered by Stacks
+;; title: aibtcdev-payments
+;; version: 1.0.0
+;; summary: An extension that provides payment processing for aibtcdev services.
 
 ;; traits
 ;;
-(impl-trait .aibtcdev-traits-v1.aibtcdev-resource-mgmt-v1)
-(impl-trait .aibtcdev-traits-v1.aibtcdev-invoice-v1)
+(impl-trait .aibtcdev-extension-trait.extension-trait)
+(impl-trait .aibtcdev-payment-traits.aibtcdev-resource-mgmt-v1)
+(impl-trait .aibtcdev-payment-traits.aibtcdev-invoice-v1)
 
 ;; constants
 ;;
@@ -198,6 +198,16 @@
 ;; public functions
 ;;
 
+(define-public (is-dao-or-extension)
+  (ok (asserts! (or (is-eq tx-sender .aibtcdev-dao)
+    (contract-call? .aibtcdev-dao is-extension contract-caller)) ERR_UNAUTHORIZED
+  ))
+)
+
+(define-public (callback (sender principal) (memo (buff 34)))
+  (ok true)
+)
+
 ;; sets payment address used for invoices
 ;; only accessible by deployer or current payment address
 (define-public (set-payment-address (oldAddress principal) (newAddress principal))
@@ -206,11 +216,8 @@
     (asserts! (is-eq oldAddress (var-get paymentAddress)) ERR_UNAUTHORIZED)
     ;; address cannot be the same
     (asserts! (not (is-eq oldAddress newAddress)) ERR_UNAUTHORIZED)
-    ;; check if caller matches deployer or oldAddress
-    (asserts! (or
-      (is-eq contract-caller oldAddress)
-      (try! (is-deployer))
-    ) ERR_UNAUTHORIZED)
+    ;; check if caller is authorized
+    (try! (is-dao-or-extension))
     ;; print details
     (print {
       notification: "set-payment-address",
@@ -227,14 +234,13 @@
 )
 
 ;; adds active resource that invoices can be generated for
-;; only accessible by deployer
 (define-public (add-resource (name (string-utf8 50)) (description (string-utf8 255)) (price uint))
   (let
     (
       (newCount (+ (get-total-resources) u1))
     )
-    ;; check if caller matches deployer
-    (try! (is-deployer))
+    ;; check if caller is authorized
+    (try! (is-dao-or-extension))
     ;; check all values are provided
     (asserts! (> (len name) u0) ERR_INVALID_PARAMS)
     (asserts! (> (len description) u0) ERR_INVALID_PARAMS)
@@ -272,7 +278,6 @@
 )
 
 ;; toggles enabled status for resource
-;; only accessible by deployer
 (define-public (toggle-resource (index uint))
   (let
     (
@@ -281,8 +286,8 @@
     )
     ;; verify resource > 0
     (asserts! (> index u0) ERR_INVALID_PARAMS)
-    ;; check if caller matches deployer
-    (try! (is-deployer))
+    ;; check if caller is authorized
+    (try! (is-dao-or-extension))
     ;; update ResourceData map
     (map-set ResourceData
       index
@@ -306,7 +311,6 @@
 )
 
 ;; toggles enabled status for resource by name
-;; only accessible by deployer
 (define-public (toggle-resource-by-name (name (string-utf8 50)))
   (toggle-resource (unwrap! (get-resource-index name) ERR_RESOURCE_NOT_FOUND))
 )
@@ -381,13 +385,13 @@
       }
     })
     ;; make transfer
-    (if (is-some memo)
+    ;;(if (is-some memo)
       ;; MAINNET
       ;; xBTC SP3K8BC0PPEVCV7NZ6QSRWPQ2JE9E5B6N3PA0KBR9.token-wbtc
       ;; aBTC SP3K8BC0PPEVCV7NZ6QSRWPQ2JE9E5B6N3PA0KBR9.token-abtc
-      (try! (contract-call? .aibtcdev-aibtc transfer (get price resourceData) contract-caller (var-get paymentAddress) memo))
-      (try! (contract-call? .aibtcdev-aibtc transfer (get price resourceData) contract-caller (var-get paymentAddress) none))
-    )
+      ;;(try! (contract-call? .aibtcdev-aibtc transfer (get price resourceData) contract-caller (var-get paymentAddress) memo))
+      ;;(try! (contract-call? .aibtcdev-aibtc transfer (get price resourceData) contract-caller (var-get paymentAddress) none))
+    ;;)
     ;; return new count
     (ok newCount)
   )
@@ -399,10 +403,6 @@
 
 ;; private functions
 ;;
-
-(define-private (is-deployer)
-  (ok (asserts! (is-eq contract-caller DEPLOYER) ERR_UNAUTHORIZED))
-)
 
 (define-private (get-or-create-user (address principal))
   (match (map-get? UserIndexes address)

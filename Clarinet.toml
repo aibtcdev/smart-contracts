@@ -7,10 +7,17 @@ cache_dir = './.cache'
 
 [[project.requirements]]
 contract_id = 'SP2PABAF9FTAJYNFZH93XENAJ8FVY99RRM50D2JG9.nft-trait'
-[contracts.aibtcdev-aibtc]
-path = 'contracts/aibtcdev-aibtc.clar'
+
+[[project.requirements]]
+contract_id = 'SP3FBR2AGK5H9QBDH3EEN6DF8EK8JY7RX8QJ5SVTE.sip-010-trait-ft-standard'
+
+[[project.requirements]]
+contract_id = 'ST000000000000000000002AMW42H.pox-4'
+
+[contracts.aibtc001-bootstrap]
+path = 'contracts/dao/proposals/aibtc001-bootstrap.clar'
 clarity_version = 2
-epoch = 2.4
+epoch = 2.5
 
 [contracts.aibtcdev-airdrop-1]
 path = 'contracts/aibtcdev-airdrop-1.clar'
@@ -23,28 +30,48 @@ clarity_version = 2
 epoch = 2.5
 
 [contracts.aibtcdev-bank-account]
-path = 'contracts/aibtcdev-bank-account.clar'
+path = 'contracts/dao/extensions/aibtcdev-bank-account.clar'
 clarity_version = 2
 epoch = 2.5
 
-[contracts.aibtcdev-resources-v1]
-path = 'contracts/aibtcdev-resources-v1.clar'
+[contracts.aibtcdev-dao]
+path = 'contracts/dao/aibtcdev-dao.clar'
 clarity_version = 2
-epoch = 2.4
+epoch = 2.5
 
-[contracts.aibtcdev-traits-v1]
-path = 'contracts/aibtcdev-traits-v1.clar'
-clarity_version = 2
-epoch = 2.4
-
-[contracts.external-proxy]
-path = 'contracts/test-proxy.clar'
-deployer = 'wallet_1'
+[contracts.aibtcdev-extension-trait]
+path = 'contracts/dao/traits/aibtcdev-extension-trait.clar'
 clarity_version = 2
 epoch = 2.5
 
 [contracts.aibtcdev-messaging]
-path = 'contracts/aibtcdev-messaging.clar'
+path = 'contracts/dao/extensions/aibtcdev-messaging.clar'
+clarity_version = 2
+epoch = 2.5
+
+[contracts.aibtcdev-payment-traits]
+path = 'contracts/dao/traits/aibtcdev-payment-traits.clar'
+clarity_version = 2
+epoch = 2.5
+
+[contracts.aibtcdev-payments]
+path = 'contracts/dao/extensions/aibtcdev-payments.clar'
+clarity_version = 2
+epoch = 2.5
+
+[contracts.aibtcdev-proposal-trait]
+path = 'contracts/dao/traits/aibtcdev-proposal-trait.clar'
+clarity_version = 2
+epoch = 2.5
+
+[contracts.aibtcdev-treasury]
+path = 'contracts/dao/extensions/aibtcdev-treasury.clar'
+clarity_version = 2
+epoch = 2.5
+
+[contracts.external-proxy]
+path = 'contracts/test-proxy.clar'
+deployer = 'wallet_1'
 clarity_version = 2
 epoch = 2.5
 
