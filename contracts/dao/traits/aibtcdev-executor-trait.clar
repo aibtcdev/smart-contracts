@@ -1,4 +1,3 @@
-;; Executor Trait Definition
 (define-trait executor-trait (
     ;; Execute a governance proposal
     (execute (principal) (response bool uint))
